@@ -1,4 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fyp_v2/Citizen_Module/igpwebscreenview.dart';
+import 'package:fyp_v2/Citizen_Module/jobwebcreenview.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -13,6 +16,17 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   final user = FirebaseAuth.instance.currentUser;
+  WebViewController? _controller;
+  bool _isWebViewVisible = false;
+
+  void _loadWebView() {
+    setState(() {
+      _isWebViewVisible = true;
+      _controller = WebViewController()
+        ..setJavaScriptMode(JavaScriptMode.unrestricted)
+        ..loadRequest(Uri.parse("https://igpcms.sindhpolice.gov.pk/"));
+    });
+  }
 
   Future<void> signOut(BuildContext context) async {
     await FirebaseAuth.instance.signOut();
@@ -549,48 +563,61 @@ class _MainScreenState extends State<MainScreen> {
                         // Box 4
                         Column(
                           mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              width: 59,
-                              height: 59,
-                              margin: const EdgeInsets.all(4),
-                              decoration: ShapeDecoration(
-                                color: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  side: const BorderSide(
-                                      width: 1, color: Color(0x802A489E)),
-                                  borderRadius: BorderRadius.circular(10),
+                            // for IGP Complaint
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => const IGPWebScreen()),
+                                  );
+                                },
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Container(
+                                      width: 59,
+                                      height: 59,
+                                      margin: const EdgeInsets.all(4),
+                                      decoration: ShapeDecoration(
+                                        color: Colors.white,
+                                        shape: RoundedRectangleBorder(
+                                          side: const BorderSide(width: 1, color: Color(0x802A489E)),
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
+                                        shadows: const [
+                                          BoxShadow(
+                                            color: Color(0x111F3982),
+                                            blurRadius: 30,
+                                            offset: Offset(0, 8),
+                                            spreadRadius: 10,
+                                          ),
+                                        ],
+                                      ),
+                                      child: Center(
+                                        child: Image.asset(
+                                          'icons/4.png', // Replace with your actual image path
+                                          width: 28,
+                                          height: 28,
+                                        ),
+                                      ),
+                                    ),
+                                    const Text(
+                                      'IGP \n Complaints',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: Color(0xFF2A489E),
+                                        fontSize: 11,
+                                        fontFamily: 'Barlow',
+                                        fontWeight: FontWeight.w400,
+                                        height: 0,
+                                        letterSpacing: 0.55,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                shadows: const [
-                                  BoxShadow(
-                                    color: Color(0x111F3982),
-                                    blurRadius: 30,
-                                    offset: Offset(0, 8),
-                                    spreadRadius: 10,
-                                  ),
-                                ],
                               ),
-                              child: Center(
-                                child: Image.asset(
-                                  'icons/4.png', // Example image path, replace with your actual image path
-                                  width: 28,
-                                  height: 28,
-                                ),
-                              ),
-                            ),
-                            const Text(
-                              'IGP \n Compliants',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Color(0xFF2A489E),
-                                fontSize: 11,
-                                fontFamily: 'Barlow',
-                                fontWeight: FontWeight.w400,
-                                height: 0,
-                                letterSpacing: 0.55,
-                              ),
-                            ),
-                          ],
+                            ]
                         ),
                       ],
                     ),
@@ -741,48 +768,60 @@ class _MainScreenState extends State<MainScreen> {
                         // Box 8
                         Column(
                           mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              width: 59,
-                              height: 59,
-                              margin: const EdgeInsets.all(4),
-                              decoration: ShapeDecoration(
-                                color: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  side: const BorderSide(
-                                      width: 1, color: Color(0x802A489E)),
-                                  borderRadius: BorderRadius.circular(10),
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => const JobWebScreen()),
+                                  );
+                                },
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Container(
+                                      width: 59,
+                                      height: 59,
+                                      margin: const EdgeInsets.all(4),
+                                      decoration: ShapeDecoration(
+                                        color: Colors.white,
+                                        shape: RoundedRectangleBorder(
+                                          side: const BorderSide(width: 1, color: Color(0x802A489E)),
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
+                                        shadows: const [
+                                          BoxShadow(
+                                            color: Color(0x111F3982),
+                                            blurRadius: 30,
+                                            offset: Offset(0, 8),
+                                            spreadRadius: 10,
+                                          ),
+                                        ],
+                                      ),
+                                      child: Center(
+                                        child: Image.asset(
+                                          'icons/8.png',
+                                          width: 28,
+                                          height: 28,
+                                        ),
+                                      ),
+                                    ),
+                                    const Text(
+                                      'Job Portal',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: Color(0xFF2A489E),
+                                        fontSize: 11,
+                                        fontFamily: 'Barlow',
+                                        fontWeight: FontWeight.w400,
+                                        height: 0,
+                                        letterSpacing: 0.55,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                shadows: const [
-                                  BoxShadow(
-                                    color: Color(0x111F3982),
-                                    blurRadius: 30,
-                                    offset: Offset(0, 8),
-                                    spreadRadius: 10,
-                                  ),
-                                ],
                               ),
-                              child: Center(
-                                child: Image.asset(
-                                  'icons/8.png', // Example image path, replace with your actual image path
-                                  width: 28,
-                                  height: 28,
-                                ),
-                              ),
-                            ),
-                            const Text(
-                              'Job Portal',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Color(0xFF2A489E),
-                                fontSize: 11,
-                                fontFamily: 'Barlow',
-                                fontWeight: FontWeight.w400,
-                                height: 0,
-                                letterSpacing: 0.55,
-                              ),
-                            )
-                          ],
+                            ]
                         ),
                       ],
                     ),

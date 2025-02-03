@@ -21,14 +21,14 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: CrimeReportScreen(),
+      home: MainScreen(),
       // initialRoute: '/',  // Initial route set to SplashScreen
       // routes: {
-      //   '/': (context) => const Splashscreen(),
-      //   '/welcome_screen': (context) => const WelcomeScreen(),
-      //   '/login_screen': (context) => const LoginScreen(),
-      //   '/signup_screen': (context) => const SignUpScreen(),
-      //   '/main_screen': (context) =>  const MainScreen(),
+      //   // '/': (context) => const Splashscreen(),
+      //   // '/welcome_screen': (context) => const WelcomeScreen(),
+      //   // '/login_screen': (context) => const LoginScreen(),
+      //   // '/signup_screen': (context) => const SignUpScreen(),
+      //   // '/main_screen': (context) =>  const MainScreen(),
       // },
     );
   }
