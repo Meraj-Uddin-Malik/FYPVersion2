@@ -857,16 +857,4 @@ class _CrimeReportScreenState extends State<CrimeReportScreen> {
       ),
     );
   }
-
-  Widget _buildStepContent(List<Widget> fields) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: fields
-          .map((field) => Padding(
-                padding: const EdgeInsets.only(bottom: 12.0),
-                child: field,
-              ))
-          .toList(),
-    );
-  }
 }
