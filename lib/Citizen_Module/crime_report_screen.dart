@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:file_picker/file_picker.dart';
+import 'dart:io';
+
 
 class CrimeReportScreen extends StatefulWidget {
   const CrimeReportScreen({super.key});
@@ -17,11 +20,11 @@ class _CrimeReportScreenState extends State<CrimeReportScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController subjectController = TextEditingController();
-  final TextEditingController incidentReport_dateController =
+  final TextEditingController incidentReportDateController =
       TextEditingController();
-  final TextEditingController incident_dateController = TextEditingController();
-  final TextEditingController incidentDetailsController =
-      TextEditingController();
+  final TextEditingController incidentDateController = TextEditingController();
+  // final TextEditingController incidentDetailsController =
+  // TextEditingController();
   final TextEditingController incidentLocationController =
       TextEditingController();
   final TextEditingController provinceController = TextEditingController();
@@ -42,6 +45,8 @@ class _CrimeReportScreenState extends State<CrimeReportScreen> {
       TextEditingController();
   final TextEditingController victimPhoneController = TextEditingController();
   final TextEditingController suspectDetailController = TextEditingController();
+  final TextEditingController reportIncidentController =
+      TextEditingController();
 
   List<String> _districts = [];
   List<String> _tehsils = [];
@@ -51,6 +56,8 @@ class _CrimeReportScreenState extends State<CrimeReportScreen> {
   String? _selectedVictimHealth;
   String? _selectedIncidentType;
   String? _selectedRelationShip;
+  File? selectedFile;
+  String fileName = "No file selected";
 
   @override
   void initState() {
@@ -97,8 +104,7 @@ class _CrimeReportScreenState extends State<CrimeReportScreen> {
   }
 
   // Date Picker
-  Future<void> _selectDate(
-      BuildContext context, TextEditingController controller) async {
+  Future<void> _selectDate( BuildContext context, TextEditingController controller) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -112,6 +118,20 @@ class _CrimeReportScreenState extends State<CrimeReportScreen> {
       });
     }
   }
+
+  Future<void> pickFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.any, // Allows selection of all file types
+    );
+
+    if (result != null) {
+      setState(() {
+        selectedFile = File(result.files.single.path!);
+        fileName = result.files.single.name;
+      });
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -214,7 +234,6 @@ class _CrimeReportScreenState extends State<CrimeReportScreen> {
                             height: 20.0,
                           ),
 
-
                           //Step Number 1
                           const Text('Personal Information',
                               style: TextStyle(
@@ -223,7 +242,7 @@ class _CrimeReportScreenState extends State<CrimeReportScreen> {
                                   fontSize: 16)),
                           const SizedBox(height: 10),
                           _buildTextField(fullNameController,
-                              'Complainant Full Name ', Icons.person),
+                              'Complainant Name ', Icons.person),
                           const SizedBox(height: 10),
                           _buildTextField(emailController, 'Email Address',
                               Icons.credit_card),
@@ -236,7 +255,6 @@ class _CrimeReportScreenState extends State<CrimeReportScreen> {
                           const SizedBox(height: 10),
                           _buildRelationshipDropdown(),
 
-
                           //Step Number 2
                           const SizedBox(
                             height: 20.0,
@@ -248,19 +266,19 @@ class _CrimeReportScreenState extends State<CrimeReportScreen> {
                                   fontSize: 16)),
                           const SizedBox(height: 10),
                           _buildIncidentTypeDropdown(),
-                          const SizedBox(height: 10),// Incident Type drop down
+                          const SizedBox(height: 10), // Incident Type drop down
                           _buildTextField(subjectController, 'Incident Subject',
                               Icons.subject),
                           const SizedBox(height: 10),
                           _buildTextField(
-                            incident_dateController,
+                            incidentDateController,
                             'Incident Date-Time',
                             Icons.calendar_today,
                             isDateField: true, // Added isDateField argument
                           ),
                           const SizedBox(height: 10),
                           _buildTextField(
-                            incidentReport_dateController,
+                            incidentReportDateController,
                             'Date Of Reporting',
                             Icons.calendar_today,
                             isDateField: true, // Added isDateField argument
@@ -277,13 +295,18 @@ class _CrimeReportScreenState extends State<CrimeReportScreen> {
                           _buildTehsilDropdown(),
                           const SizedBox(height: 10),
                           _buildTextField(
-                            incidentDetailsController,
-                            'Incident Details',
-                            Icons.description,
-                          ),
+                              reportIncidentController,
+                              'Incident Detail / Victim Statement',
+                              Icons.description,
+                              isMultiline: true),
+
+                          // _buildTextField(
+                          //   incidentDetailsController,
+                          //   'Incident Details',
+                          //   Icons.description,
+                          // ),
                           const SizedBox(height: 10),
                           _buildUrgencyDropdown(), // Urgency Level Drop down
-
 
                           //Step Number 3
                           const SizedBox(
@@ -295,11 +318,11 @@ class _CrimeReportScreenState extends State<CrimeReportScreen> {
                                   fontWeight: FontWeight.w500,
                                   fontSize: 16)),
                           const SizedBox(height: 10),
-                          _buildTextField(victimNameController,
-                              'Victim Name', Icons.person),
+                          _buildTextField(victimNameController, 'Victim Name',
+                              Icons.person),
                           const SizedBox(height: 10),
-                          _buildTextField(victimCnicController,
-                              'Victim CNIC', Icons.credit_card),
+                          _buildTextField(victimCnicController, 'Victim CNIC',
+                              Icons.credit_card),
                           const SizedBox(height: 10),
                           _buildTextField(victimAddressController,
                               'Victim Address', Icons.map),
@@ -319,8 +342,8 @@ class _CrimeReportScreenState extends State<CrimeReportScreen> {
                                   fontWeight: FontWeight.w500,
                                   fontSize: 16)),
                           const SizedBox(height: 10),
-                          _buildTextField(suspectNameController,
-                              'Suspect Name', Icons.person),
+                          _buildTextField(suspectNameController, 'Suspect Name',
+                              Icons.person),
                           const SizedBox(height: 10),
                           _buildTextField(suspectAddressController,
                               'Suspect Address', Icons.map),
@@ -338,21 +361,14 @@ class _CrimeReportScreenState extends State<CrimeReportScreen> {
                                   fontWeight: FontWeight.w500,
                                   fontSize: 16)),
                           const SizedBox(height: 10),
-                          _buildTextField(witnessNameController,
-                              'Witness Name', Icons.person),
+                          _buildTextField(witnessNameController, 'Witness Name',
+                              Icons.person),
                           const SizedBox(height: 10),
                           _buildTextField(witnessContactController,
                               'Witness Contact', Icons.person),
-                          const SizedBox(height: 10),
 
-                          const Text('Witness Information',
-                              style: TextStyle(
-                                  color: Color(0xFF2A489E),
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 16)),
-                          const SizedBox(height: 15),
 
-                          const SizedBox(height: 15),
+                          const SizedBox(height: 22),
                           SizedBox(
                             height: 1.0,
                             width: 300.0,
@@ -361,10 +377,59 @@ class _CrimeReportScreenState extends State<CrimeReportScreen> {
                                   margin: const EdgeInsetsDirectional.only(
                                       start: 1.0, end: 4.0),
                                   height: 5.0,
-                                  color:
-                                      const Color(0xFF2A489E).withOpacity(0.5)),
+                                  color: const Color(0xFF2A489E)
+                                      .withAlpha((0.5 * 255).toInt())),
                             ),
                           ),
+
+                          Center(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center, // Align button and bullet points to the center
+                              children: [
+                                // Column to place the button and the file name below it
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center, // Center the button and file name
+                                  children: [
+                                    ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        foregroundColor: Colors.white,
+                                        backgroundColor: Color(0xFF2A489E),
+                                      ),
+                                      onPressed: pickFile, // Your file picker function
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          const Icon(Icons.upload_file, color: Colors.white), // Icon for browsing
+                                          const SizedBox(width: 15), // Space between icon and text
+                                          const Text('Browse'),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10), // Small space between button and file name
+                                    Text(fileName.isEmpty ? 'No file selected' : fileName, style: TextStyle(fontSize: 11)),
+                                  ],
+                                ),
+
+                                // Bullet text on the right (using Column for vertical alignment)
+                                const SizedBox(width: 55), // Space between the button and bullet points
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start, // Align to the left
+                                  children: [
+                                    const Text('• Document 25 Mb', style: TextStyle(fontSize: 12, color: Color(0xFF2A489E))),
+                                    const Text('• Picture 25 Mb', style: TextStyle(fontSize: 12, color: Color(0xFF2A489E))),
+                                    const Text('• Video 50 Mb', style: TextStyle(fontSize: 12, color: Color(0xFF2A489E))),
+                                    const Text('• Audio 50 Mb', style: TextStyle(fontSize: 12, color: Color(0xFF2A489E))),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+
+
+
+
+
+
                           const SizedBox(height: 10.0),
                           SizedBox(
                             width: 245.0,
@@ -393,9 +458,12 @@ class _CrimeReportScreenState extends State<CrimeReportScreen> {
 
   Widget _buildTextField(
       TextEditingController controller, String labelText, IconData icon,
-      {bool isDateField = false, bool isRequired = false}) {
+      {bool isDateField = false,
+      bool isRequired = false,
+      bool isMultiline = false}) {
     return SizedBox(
       width: 300.0,
+      height: isMultiline ? 170.0 : null, // Increase height for multiline field
       child: TextFormField(
         controller: controller,
         validator: (value) {
@@ -404,25 +472,24 @@ class _CrimeReportScreenState extends State<CrimeReportScreen> {
           }
           return null;
         },
-
-        onTap: isDateField
-            ? () => _selectDate(context, controller)
-            : null, // Only show date picker for date fields
-        readOnly: isDateField, // Prevent typing in the date fields
+        onTap: isDateField ? () => _selectDate(context, controller) : null,
+        readOnly: isDateField,
+        maxLines: isMultiline ? null : 1,
+        minLines: isMultiline ? 5 : 1,
+        keyboardType:
+            isMultiline ? TextInputType.multiline : TextInputType.text,
+        style: TextStyle(
+          color: Color(0xFF203982), // Set the text color to blue
+        ),
         decoration: InputDecoration(
           border: const OutlineInputBorder(),
-          labelText: labelText,
+          labelText: labelText, // Shows the label inside the field
           labelStyle: TextStyle(
-            color: const Color(0xFF203982).withOpacity(0.7),
+            color: const Color(0xFF203982).withAlpha((0.7 * 255).toInt()),
             fontSize: 13.0,
           ),
-          floatingLabelStyle: const TextStyle(
-            color: Color(0xFF203982), // Active label color
-            fontWeight: FontWeight.w400,
-            fontSize: 17.5,
-          ),
           contentPadding: const EdgeInsets.symmetric(
-            vertical: 8.0,
+            vertical: 12.0, // Adjust vertical padding
             horizontal: 10.0,
           ),
           prefixIcon: ShaderMask(
@@ -465,7 +532,7 @@ class _CrimeReportScreenState extends State<CrimeReportScreen> {
           labelText: 'Select your District',
           border: const OutlineInputBorder(),
           labelStyle: TextStyle(
-            color: const Color(0xFF203982).withOpacity(0.7),
+            color: const Color(0xFF203982).withAlpha((0.7 * 255).toInt()),
             fontSize: 13.0,
           ),
           contentPadding: const EdgeInsets.symmetric(
@@ -535,7 +602,7 @@ class _CrimeReportScreenState extends State<CrimeReportScreen> {
           labelText: 'Select your Tehsil',
           border: const OutlineInputBorder(),
           labelStyle: TextStyle(
-            color: const Color(0xFF203982).withOpacity(0.7),
+            color: const Color(0xFF203982).withAlpha((0.7 * 255).toInt()),
             fontSize: 13.0,
           ),
           contentPadding: const EdgeInsets.symmetric(
@@ -592,7 +659,6 @@ class _CrimeReportScreenState extends State<CrimeReportScreen> {
 
   Widget _buildUrgencyDropdown() {
     List<String> urgencyLevels = ["Low", "Medium", "High", "Critical"];
-
     return SizedBox(
       width: 300.0,
       child: DropdownButtonFormField<String>(
@@ -601,7 +667,7 @@ class _CrimeReportScreenState extends State<CrimeReportScreen> {
           labelText: 'Select Urgency Level',
           border: const OutlineInputBorder(),
           labelStyle: TextStyle(
-            color: const Color(0xFF203982).withOpacity(0.7),
+            color: const Color(0xFF203982).withAlpha((0.7 * 255).toInt()),
             fontSize: 13.0,
           ),
           contentPadding: const EdgeInsets.symmetric(
@@ -666,7 +732,7 @@ class _CrimeReportScreenState extends State<CrimeReportScreen> {
           labelText: 'Relationship With Victim',
           border: const OutlineInputBorder(),
           labelStyle: TextStyle(
-            color: const Color(0xFF203982).withOpacity(0.7),
+            color: const Color(0xFF203982).withAlpha((0.7 * 255).toInt()),
             fontSize: 13.0,
           ),
           contentPadding: const EdgeInsets.symmetric(
@@ -731,7 +797,7 @@ class _CrimeReportScreenState extends State<CrimeReportScreen> {
           labelText: 'Victim Health Status',
           border: const OutlineInputBorder(),
           labelStyle: TextStyle(
-            color: const Color(0xFF203982).withOpacity(0.7),
+            color: const Color(0xFF203982).withAlpha((0.7 * 255).toInt()),
             fontSize: 13.0,
           ),
           contentPadding: const EdgeInsets.symmetric(
@@ -803,7 +869,78 @@ class _CrimeReportScreenState extends State<CrimeReportScreen> {
           labelText: 'Select Incident Type',
           border: const OutlineInputBorder(),
           labelStyle: TextStyle(
-            color: const Color(0xFF203982).withOpacity(0.7),
+            color: const Color(0xFF203982).withAlpha((0.7 * 255).toInt()),
+            fontSize: 13.0,
+          ),
+          contentPadding: const EdgeInsets.symmetric(
+            vertical: 8.0,
+            horizontal: 10.0,
+          ),
+          prefixIcon: ShaderMask(
+            shaderCallback: (Rect bounds) {
+              return const LinearGradient(
+                colors: [Color(0xFF203982), Colors.red],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ).createShader(bounds);
+            },
+            child: Icon(
+              Icons.emergency, //
+              color: Colors.red.shade100,
+              size: 19.5,
+            ),
+          ),
+          enabledBorder: const OutlineInputBorder(
+            borderSide: BorderSide(
+              color: Color(0xFF203982),
+              width: 0.6,
+            ),
+          ),
+          focusedBorder: const OutlineInputBorder(
+            borderSide: BorderSide(
+              color: Color(0xFF203982),
+              width: 1.0,
+            ),
+          ),
+        ),
+        onChanged: (String? newValue) {
+          setState(() {
+            _selectedIncidentType = newValue;
+          });
+        },
+        items: incidentType.map<DropdownMenuItem<String>>((String tehsil) {
+          return DropdownMenuItem<String>(
+            value: tehsil,
+            child: Text(
+              tehsil,
+              style: const TextStyle(
+                color: Color(0xFF203982),
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildStationDropdown() {
+    List<String> incidentType = [
+      "Theft & Robbery",
+      "Assault & Violence",
+      "Fraud & Cybercrime",
+      "Harassment & Threats",
+      "Others",
+    ];
+    return SizedBox(
+      width: 300.0,
+      child: DropdownButtonFormField<String>(
+        value: _selectedIncidentType,
+        decoration: InputDecoration(
+          labelText: 'Select Incident Type',
+          border: const OutlineInputBorder(),
+          labelStyle: TextStyle(
+            color: const Color(0xFF203982).withAlpha((0.7 * 255).toInt()),
             fontSize: 13.0,
           ),
           contentPadding: const EdgeInsets.symmetric(
