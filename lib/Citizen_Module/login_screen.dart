@@ -56,18 +56,18 @@ class LoginScreenState extends State<LoginScreen> {
             var userData = userDoc.data() as Map<String, dynamic>;
             String role = userData['role'];
             String badgeNo = userData['badgeno'] ?? '';  // Empty if no badge
-            String username = userData['username'];
-            String cnic = userData['cnic'];
-            String email = userData['email'];
-            String gender = userData['gender'];
+            // String username = userData['username'];
+            // String cnic = userData['cnic'];
+            // String email = userData['email'];
+            // String gender = userData['gender'];
 
             // Print user data for debugging purposes
-            print('User Role: $role');
-            print('Badge No: $badgeNo');
-            print('Username: $username');
-            print('CNIC: $cnic');
-            print('Email: $email');
-            print('Gender: $gender');
+            // print('User Role: $role');
+            // print('Badge No: $badgeNo');
+            // print('Username: $username');
+            // print('CNIC: $cnic');
+            // print('Email: $email');
+            // print('Gender: $gender');
 
             // Check for valid role and navigate accordingly
             if (role == null || role.isEmpty) {

@@ -13,8 +13,7 @@ class SignUpScreen extends StatefulWidget {
   State<SignUpScreen> createState() => _SignUpScreenState();
 }
 
-TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue, TextEditingValue newValue) {
+TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
   // Remove all non-digit characters
   String digits = newValue.text.replaceAll(RegExp(r'\D'), '');
   // Add hyphens automatically

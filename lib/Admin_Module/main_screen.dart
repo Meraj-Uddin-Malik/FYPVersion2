@@ -2,11 +2,12 @@ import 'package:fyp_v2/Citizen_Module/crime_report_screen.dart';
 import 'package:fyp_v2/Citizen_Module/igpwebscreenview.dart';
 import 'package:fyp_v2/Citizen_Module/jobwebcreenview.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:url_launcher/url_launcher.dart';
+import '../Citizen_Module/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'login_screen.dart';
+
+
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -40,20 +41,6 @@ class _MainScreenState extends State<MainScreen> {
     DateTime now = DateTime.now();
     String formattedDateTime =
     DateFormat('EEEE, yyyy-MM-dd, hh:mm:ss a').format(now);
-
-    Future<void> makeCall() async {
-      final String phoneNumber = "15"; // Phone number to dial
-
-      // Check if the device can make a call
-      final Uri phoneUri = Uri(scheme: 'tel', path: phoneNumber);
-      if (await canLaunch(phoneUri.toString())) {
-        await launch(phoneUri.toString()); // Open the dialer with the number
-      } else
-      {
-        throw 'Could not launch $phoneNumber';
-      }
-    }
-
 
     return Scaffold(
       // bottomNavigationBar: CurvedNavigationBar(
@@ -264,7 +251,9 @@ class _MainScreenState extends State<MainScreen> {
                           Padding(
                             padding: const EdgeInsets.only(right: 20.0),
                             child: ElevatedButton(
-                             onPressed: makeCall,
+                              onPressed: () {
+                                debugPrint("Evaluate button pressed");
+                              },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor:
                                 const Color(0xFFE22128), // Button color
@@ -619,7 +608,7 @@ class _MainScreenState extends State<MainScreen> {
                         ),
                         // Box 4
                         Column(
-                          mainAxisSize: MainAxisSize.min,
+                            mainAxisSize: MainAxisSize.min,
                             // for IGP Complaint
                             children: [
                               GestureDetector(
@@ -823,7 +812,7 @@ class _MainScreenState extends State<MainScreen> {
                         ),
                         // Box 8
                         Column(
-                          mainAxisSize: MainAxisSize.min,
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               GestureDetector(
                                 onTap: () {
