@@ -1,4 +1,5 @@
 import 'package:fyp_v2/Citizen_Module/crime_report_screen.dart';
+import 'package:fyp_v2/Citizen_Module/fir_tracking_screen.dart';
 import 'package:fyp_v2/Citizen_Module/igpwebscreenview.dart';
 import 'package:fyp_v2/Citizen_Module/jobwebcreenview.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -125,8 +126,8 @@ class _MainScreenState extends State<MainScreen> {
                           letterSpacing: 0.60,
                         ),
                       ),
-                      const SizedBox(height: 13),
 
+                      const SizedBox(height: 13),
                       Row(
                         children: [
                           const SizedBox(width: 15),
@@ -208,7 +209,6 @@ class _MainScreenState extends State<MainScreen> {
                           ),
                         ],
                       ),
-
                       const SizedBox(height: 20),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -374,7 +374,10 @@ class _MainScreenState extends State<MainScreen> {
                         children: [
                           ElevatedButton(
                             onPressed: () {
-                              debugPrint("View Details button pressed");
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const PreFIRTrackingScreen()),
+                              );
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor:
@@ -575,31 +578,40 @@ class _MainScreenState extends State<MainScreen> {
                         Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Container(
-                              width: 59,
-                              height: 59,
-                              margin: const EdgeInsets.all(4),
-                              decoration: ShapeDecoration(
-                                color: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  side: const BorderSide(
-                                      width: 1, color: Color(0x802A489E)),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                shadows: const [
-                                  BoxShadow(
-                                    color: Color(0x111F3982),
-                                    blurRadius: 30,
-                                    offset: Offset(0, 8),
-                                    spreadRadius: 10,
+                            GestureDetector(
+                              onTap: () {
+                                // Ensuring the navigation is correctly done
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const PreFIRTrackingScreen()),
+                                );
+                              },
+                              child: Container(
+                                width: 59,
+                                height: 59,
+                                margin: const EdgeInsets.all(4),
+                                decoration: ShapeDecoration(
+                                  color: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    side: const BorderSide(
+                                        width: 1, color: Color(0x802A489E)),
+                                    borderRadius: BorderRadius.circular(10),
                                   ),
-                                ],
-                              ),
-                              child: Center(
-                                child: Image.asset(
-                                  'icons/3.png', // Example image path, replace with your actual image path
-                                  width: 30,
-                                  height: 30,
+                                  shadows: const [
+                                    BoxShadow(
+                                      color: Color(0x111F3982),
+                                      blurRadius: 30,
+                                      offset: Offset(0, 8),
+                                      spreadRadius: 10,
+                                    ),
+                                  ],
+                                ),
+                                child: Center(
+                                  child: Image.asset(
+                                    'icons/3.png', // Example image path, replace with your actual image path
+                                    width: 30,
+                                    height: 30,
+                                  ),
                                 ),
                               ),
                             ),
@@ -617,6 +629,7 @@ class _MainScreenState extends State<MainScreen> {
                             ),
                           ],
                         ),
+
                         // Box 4
                         Column(
                           mainAxisSize: MainAxisSize.min,
@@ -687,31 +700,39 @@ class _MainScreenState extends State<MainScreen> {
                         Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Container(
-                              width: 59,
-                              height: 59,
-                              margin: const EdgeInsets.all(4),
-                              decoration: ShapeDecoration(
-                                color: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  side: const BorderSide(
-                                      width: 1, color: Color(0x802A489E)),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                shadows: const [
-                                  BoxShadow(
-                                    color: Color(0x111F3982),
-                                    blurRadius: 30,
-                                    offset: Offset(0, 8),
-                                    spreadRadius: 10,
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const CrimeReportScreen()),
+                                );
+                              },
+                              child: Container(
+                                width: 59,
+                                height: 59,
+                                margin: const EdgeInsets.all(4),
+                                decoration: ShapeDecoration(
+                                  color: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    side: const BorderSide(
+                                        width: 1, color: Color(0x802A489E)),
+                                    borderRadius: BorderRadius.circular(10),
                                   ),
-                                ],
-                              ),
-                              child: Center(
-                                child: Image.asset(
-                                  'icons/5.png', // Example image path, replace with your actual image path
-                                  width: 28,
-                                  height: 28,
+                                  shadows: const [
+                                    BoxShadow(
+                                      color: Color(0x111F3982),
+                                      blurRadius: 30,
+                                      offset: Offset(0, 8),
+                                      spreadRadius: 10,
+                                    ),
+                                  ],
+                                ),
+                                child: Center(
+                                  child: Image.asset(
+                                    'icons/5.png', // Example image path, replace with your actual image path
+                                    width: 28,
+                                    height: 28,
+                                  ),
                                 ),
                               ),
                             ),
@@ -733,31 +754,39 @@ class _MainScreenState extends State<MainScreen> {
                         Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Container(
-                              width: 59,
-                              height: 59,
-                              margin: const EdgeInsets.all(4),
-                              decoration: ShapeDecoration(
-                                color: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  side: const BorderSide(
-                                      width: 1, color: Color(0x802A489E)),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                shadows: const [
-                                  BoxShadow(
-                                    color: Color(0x111F3982),
-                                    blurRadius: 30,
-                                    offset: Offset(0, 8),
-                                    spreadRadius: 10,
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const CrimeReportScreen()),
+                                );
+                              },
+                              child: Container(
+                                width: 59,
+                                height: 59,
+                                margin: const EdgeInsets.all(4),
+                                decoration: ShapeDecoration(
+                                  color: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    side: const BorderSide(
+                                        width: 1, color: Color(0x802A489E)),
+                                    borderRadius: BorderRadius.circular(10),
                                   ),
-                                ],
-                              ),
-                              child: Center(
-                                child: Image.asset(
-                                  'icons/6.png', // Example image path, replace with your actual image path
-                                  width: 30,
-                                  height: 30,
+                                  shadows: const [
+                                    BoxShadow(
+                                      color: Color(0x111F3982),
+                                      blurRadius: 30,
+                                      offset: Offset(0, 8),
+                                      spreadRadius: 10,
+                                    ),
+                                  ],
+                                ),
+                                child: Center(
+                                  child: Image.asset(
+                                    'icons/6.png', // Example image path, replace with your actual image path
+                                    width: 30,
+                                    height: 30,
+                                  ),
                                 ),
                               ),
                             ),
@@ -779,31 +808,39 @@ class _MainScreenState extends State<MainScreen> {
                         Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Container(
-                              width: 59,
-                              height: 59,
-                              margin: const EdgeInsets.all(4),
-                              decoration: ShapeDecoration(
-                                color: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  side: const BorderSide(
-                                      width: 1, color: Color(0x802A489E)),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                shadows: const [
-                                  BoxShadow(
-                                    color: Color(0x111F3982),
-                                    blurRadius: 30,
-                                    offset: Offset(0, 8),
-                                    spreadRadius: 10,
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const CrimeReportScreen()),
+                                );
+                              },
+                              child: Container(
+                                width: 59,
+                                height: 59,
+                                margin: const EdgeInsets.all(4),
+                                decoration: ShapeDecoration(
+                                  color: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    side: const BorderSide(
+                                        width: 1, color: Color(0x802A489E)),
+                                    borderRadius: BorderRadius.circular(10),
                                   ),
-                                ],
-                              ),
-                              child: Center(
-                                child: Image.asset(
-                                  'icons/7.png', // Example image path, replace with your actual image path
-                                  width: 28,
-                                  height: 28,
+                                  shadows: const [
+                                    BoxShadow(
+                                      color: Color(0x111F3982),
+                                      blurRadius: 30,
+                                      offset: Offset(0, 8),
+                                      spreadRadius: 10,
+                                    ),
+                                  ],
+                                ),
+                                child: Center(
+                                  child: Image.asset(
+                                    'icons/7.png', // Example image path, replace with your actual image path
+                                    width: 28,
+                                    height: 28,
+                                  ),
                                 ),
                               ),
                             ),

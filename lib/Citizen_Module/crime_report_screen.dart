@@ -1,7 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:art_sweetalert/art_sweetalert.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:path/path.dart' as path;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:file_picker/file_picker.dart';
 import 'dart:io';
 
 class CrimeReportScreen extends StatefulWidget {
@@ -45,6 +48,8 @@ class _CrimeReportScreenState extends State<CrimeReportScreen> {
   final TextEditingController reportIncidentController =
       TextEditingController();
 
+  String fileName = "No file selected";
+  final _formKey = GlobalKey<FormState>();
   List<String> _districts = [];
   List<String> _tehsils = [];
   String? _selectedDistrict;
@@ -53,11 +58,14 @@ class _CrimeReportScreenState extends State<CrimeReportScreen> {
   String? _selectedVictimHealth;
   String? _selectedIncidentType;
   String? _selectedRelationShip;
+  String? _selectedGender;
   File? selectedFile;
-  String fileName = "No file selected";
+  String? fileUrl;
+
 
   TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue, TextEditingValue newValue) {
+      TextEditingValue oldValue, TextEditingValue newValue)
+  {
     // Remove all non-digit characters
     String digits = newValue.text.replaceAll(RegExp(r'\D'), '');
 
@@ -84,88 +92,147 @@ class _CrimeReportScreenState extends State<CrimeReportScreen> {
     );
   }
 
-  final _formKey = GlobalKey<FormState>();
 
-  void submitForm() {
+  void submitForm() async {
     if (_formKey.currentState!.validate()) {
-      showDialog(
+      ArtSweetAlert.show(
         context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text("Confirm Submission"),
-            content: SingleChildScrollView(
-              child: ListBody(children: [
-                Text(
-                    "Full Name: ${fullNameController.text.isNotEmpty ? fullNameController.text : 'No data'}"),
-                Text(
-                    "Email: ${emailController.text.isNotEmpty ? emailController.text : 'No data'}"),
-                Text(
-                    "CNIC: ${cnicController.text.isNotEmpty ? cnicController.text : 'No data'}"),
-                Text(
-                    "Phone: ${phoneController.text.isNotEmpty ? phoneController.text : 'No data'}"),
-                Text(
-                    "Incident Location: ${incidentLocationController.text.isNotEmpty ? incidentLocationController.text : 'No data'}"),
-                Text(
-                    "Incident Date: ${incidentDateController.text.isNotEmpty ? incidentDateController.text : 'No data'}"),
-                Text(
-                    "Date of Reporting: ${incidentReportDateController.text.isNotEmpty ? incidentReportDateController.text : 'No data'}"),
-                Text(
-                    "File: ${fileName.isEmpty ? 'No file selected' : fileName}"),
-                Text(
-                    "Incident Subject: ${subjectController.text.isNotEmpty ? subjectController.text : 'No data'}"),
-                Text(
-                    "Victim Name: ${victimNameController.text.isNotEmpty ? victimNameController.text : 'No data'}"),
-                Text(
-                    "Victim CNIC: ${victimCnicController.text.isNotEmpty ? victimCnicController.text : 'No data'}"),
-                Text(
-                    "Victim Address: ${victimAddressController.text.isNotEmpty ? victimAddressController.text : 'No data'}"),
-                Text(
-                    "Victim Contact: ${victimContactController.text.isNotEmpty ? victimContactController.text : 'No data'}"),
-                Text(
-                    "Suspect Name: ${suspectNameController.text.isNotEmpty ? suspectNameController.text : 'No data'}"),
-                Text(
-                    "Suspect Address: ${suspectAddressController.text.isNotEmpty ? suspectAddressController.text : 'No data'}"),
-                Text(
-                    "Suspect Description: ${suspectDetailController.text.isNotEmpty ? suspectDetailController.text : 'No data'}"),
-                Text(
-                    "Witness Name: ${witnessNameController.text.isNotEmpty ? witnessNameController.text : 'No data'}"),
-                Text(
-                    "Witness Contact: ${witnessContactController.text.isNotEmpty ? witnessContactController.text : 'No data'}"),
-              ]),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text("Cancel"),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Form Submitted Successfully!"),
-                      backgroundColor: Colors.green,
-                    ),
-                  );
-                },
-                child: const Text("Submit"),
-              ),
-            ],
-          );
-        },
+        artDialogArgs: ArtDialogArgs(
+          type: ArtSweetAlertType.info, // Info type for confirmation dialog
+          title: "Confirm Submission",
+          text: "Are you sure you want to submit the form?",
+          confirmButtonText: "Submit",
+          cancelButtonText: "Cancel",
+          onConfirm: () async {
+            Navigator.of(context).pop(); // Close the SweetAlert dialog
+
+            try {
+              if (selectedFile != null) {
+                // Upload the selected file
+                await uploadFile(selectedFile!);
+              }
+
+              // Reference to Firestore collection
+              CollectionReference preFIRCollection = FirebaseFirestore.instance.collection('pre_fir');
+
+              // Add form data to Firestore with default status "New"
+              await preFIRCollection.add({
+                'complainant_name': fullNameController.text,
+                'email': emailController.text,
+                'cnic': cnicController.text,
+                'contact': phoneController.text,
+                'incident_subject': subjectController.text,
+                'incident_date': incidentDateController.text,
+                'reporting_date': incidentReportDateController.text,
+                'incident_location': incidentLocationController.text,
+                'incident_detail': reportIncidentController.text,
+                'victim_name': victimNameController.text,
+                'victim_cnic': victimCnicController.text,
+                'victim_address': victimAddressController.text,
+                'victim_contact': victimContactController.text,
+                'victim_gender': _selectedGender, // Use gender for victim gender
+                'suspect_name': suspectNameController.text,
+                'suspect_address': suspectAddressController.text,
+                'suspect_description': suspectDetailController.text,
+                'witness_name': witnessNameController.text,
+                'witness_contact': witnessContactController.text,
+                'file_url': fileUrl, // Store file URL from Firebase Storage
+                'status': 'New', // Default status as "New"
+                'timestamp': FieldValue.serverTimestamp(), // Server timestamp
+                'complainant_gender': _selectedGender, // Use gender for complainant gender
+              });
+
+              // Show success message
+              ArtSweetAlert.show(
+                context: context,
+                artDialogArgs: ArtDialogArgs(
+                  type: ArtSweetAlertType.success, // Success type
+                  title: "Success",
+                  text: "FIR Submitted Successfully!",
+                  confirmButtonText: "OK",
+                ),
+              );
+
+              // Reset form and fields
+              _formKey.currentState?.reset(); // Reset the form
+              clearControllers();
+            } catch (e) {
+              // Show error message
+              ArtSweetAlert.show(
+                context: context,
+                artDialogArgs: ArtDialogArgs(
+                  type: ArtSweetAlertType.warning, // Warning type (since error is not available)
+                  title: "Error",
+                  text: "Error submitting form: $e",
+                  confirmButtonText: "OK",
+                ),
+              );
+            }
+          },
+          onCancel: () {
+            Navigator.of(context).pop(); // Close the SweetAlert dialog on cancel
+          },
+        ),
       );
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _fetchDistricts(); // Fetch districts when the screen loads
+  void clearControllers() {
+    fullNameController.clear();
+    emailController.clear();
+    cnicController.clear();
+    phoneController.clear();
+    subjectController.clear();
+    incidentDateController.clear();
+    incidentReportDateController.clear();
+    incidentLocationController.clear();
+    reportIncidentController.clear();
+    victimNameController.clear();
+    victimCnicController.clear();
+    victimAddressController.clear();
+    victimContactController.clear();
+    suspectNameController.clear();
+    suspectAddressController.clear();
+    suspectDetailController.clear();
+    witnessNameController.clear();
+    witnessContactController.clear();
+    _selectedGender = null; // Reset the gender value
+    fileName = '';
+    fileUrl = '';
   }
 
-  // Fetch districts from Firestore
+  Future<void> pickFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.any, // Allows selection of all file types
+    );
+
+    if (result != null) {
+      setState(() {
+        selectedFile = File(result.files.single.path!);
+        fileName = result.files.single.name;
+      });
+    }
+  }
+
+  Future<void> uploadFile(File file) async {
+    try {
+      String fileName = path.basename(file.path); // Get the file name
+      FirebaseStorage storage = FirebaseStorage.instance;
+      Reference ref = storage.ref().child('uploads/$fileName');
+
+      // Upload the file to Firebase Storage
+      UploadTask uploadTask = ref.putFile(file);
+
+      // Get the file's URL after it's uploaded
+      TaskSnapshot snapshot = await uploadTask;
+      fileUrl = await snapshot.ref.getDownloadURL();
+
+      print("File uploaded successfully. URL: $fileUrl");
+    } catch (e) {
+      print("Error uploading file: $e");
+    }
+  }
+
   void _fetchDistricts() async {
     try {
       final snapshot =
@@ -181,7 +248,12 @@ class _CrimeReportScreenState extends State<CrimeReportScreen> {
     }
   }
 
-  // Fetch tehsils from Firestore based on selected district
+  @override
+  void initState() {
+    super.initState();
+    _fetchDistricts(); // Fetch districts when the screen loads
+  }
+
   void _fetchTehsils(String district) async {
     try {
       // Fetching tehsils array from the district document
@@ -204,8 +276,7 @@ class _CrimeReportScreenState extends State<CrimeReportScreen> {
   }
 
   // Date Picker
-  Future<void> _selectDate(
-      BuildContext context, TextEditingController controller) async {
+  Future<void> _selectDate(BuildContext context, TextEditingController controller) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -220,18 +291,6 @@ class _CrimeReportScreenState extends State<CrimeReportScreen> {
     }
   }
 
-  Future<void> pickFile() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.any, // Allows selection of all file types
-    );
-
-    if (result != null) {
-      setState(() {
-        selectedFile = File(result.files.single.path!);
-        fileName = result.files.single.name;
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -358,6 +417,8 @@ class _CrimeReportScreenState extends State<CrimeReportScreen> {
                                     cnicController, 'CNIC', Icons.credit_card,
                                     isCNIC: true),
                                 const SizedBox(height: 10),
+                                _buildGenderDropdown(),
+                                const SizedBox(height: 10),
                                 _buildTextField(phoneController,
                                     'Contact Number', Icons.phone, isRequired: true,),
                                 const SizedBox(height: 10),
@@ -413,9 +474,8 @@ class _CrimeReportScreenState extends State<CrimeReportScreen> {
                                   isRequired: true,
                                 ),
 
-
                                 // Step Number 3 - Victim Information
-                                const SizedBox(height: 20.0),
+                                const SizedBox(height: 0.0),
                                 const Text(
                                   'Victim Information',
                                   style: TextStyle(
@@ -432,6 +492,8 @@ class _CrimeReportScreenState extends State<CrimeReportScreen> {
                                 _buildTextField(victimCnicController,
                                     'Victim CNIC', Icons.credit_card,
                                     isCNIC: true),
+                                const SizedBox(height: 10),
+                                _buildGenderDropdown(),
                                 const SizedBox(height: 10),
                                 _buildTextField(victimAddressController,
                                     'Victim Address', Icons.map,
@@ -1159,6 +1221,78 @@ class _CrimeReportScreenState extends State<CrimeReportScreen> {
             ),
           );
         }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildGenderDropdown() {
+    return SizedBox(
+      width: 300.0, // Ensure the width is consistent with the incident type dropdown
+      child: DropdownButtonFormField<String>(
+        value: _selectedGender,
+        decoration: InputDecoration(
+          labelText: 'Select your gender',
+          labelStyle: TextStyle(
+            color: const Color(0xFF203982).withAlpha((0.7 * 255).toInt()),
+            fontSize: 13.0,
+          ),
+          border: const OutlineInputBorder(),
+          contentPadding: const EdgeInsets.symmetric(
+            vertical: 8.0,
+            horizontal: 10.0,
+          ),
+          prefixIcon: ShaderMask(
+            shaderCallback: (Rect bounds) {
+              return const LinearGradient(
+                colors: [Color(0xFF203982), Colors.pink],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ).createShader(bounds);
+            },
+            child: Icon(
+              Icons.person, // Icon for gender
+              color: Colors.pink.shade100,
+              size: 19.5,
+            ),
+          ),
+          enabledBorder: const OutlineInputBorder(
+            borderSide: BorderSide(
+              color: Color(0xFF203982),
+              width: 0.6,
+            ),
+          ),
+          focusedBorder: const OutlineInputBorder(
+            borderSide: BorderSide(
+              color: Color(0xFF203982),
+              width: 1.0,
+            ),
+          ),
+        ),
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Please select your gender'; // Error message if no gender is selected
+          }
+          return null;
+        },
+        onChanged: (String? newValue) {
+          setState(() {
+            _selectedGender = newValue;
+          });
+        },
+        items: ['Male', 'Female', 'Other']
+            .map<DropdownMenuItem<String>>(
+              (String value) => DropdownMenuItem<String>(
+            value: value,
+            child: Text(
+              value,
+              style: const TextStyle(
+                color: Color(0xFF203982),
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+        )
+            .toList(),
       ),
     );
   }

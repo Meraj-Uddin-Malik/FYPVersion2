@@ -62,8 +62,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
     super.dispose();
   }
 
-
-
   void _clearFields() {
     _usernameController.clear();
     _emailController.clear();
@@ -75,8 +73,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
       _selectedGender = null; // Reset dropdown
     });
   }
-
-
 
   Future<void> _signUpWithFirebase() async {
     try {
@@ -437,7 +433,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
       ),
     );
   }
-
 
   Widget _buildGenderDropdown() {
     return Padding(
