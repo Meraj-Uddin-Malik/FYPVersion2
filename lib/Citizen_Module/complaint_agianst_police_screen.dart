@@ -22,24 +22,17 @@ class _ComplaintAgianstPoliceScreenState extends State<ComplaintAgianstPoliceScr
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController subjectController = TextEditingController();
   final TextEditingController incidentDateController = TextEditingController();
-  final TextEditingController incidentReportDateController = TextEditingController();
   final TextEditingController incidentLocationController = TextEditingController();
-  final TextEditingController reportIncidentController = TextEditingController(); // Incident Description
+  final TextEditingController reportIncidentController = TextEditingController();
+  final TextEditingController officerNameController = TextEditingController();
+  final TextEditingController evidenceDescriptionController = TextEditingController();
+  final TextEditingController additionalCommentsController = TextEditingController();
 
-// New fields
-  final TextEditingController officerNameController = TextEditingController(); // Officer Name / Badge Number (if known)
-  final TextEditingController evidenceDescriptionController = TextEditingController(); // Evidence Description
-  final TextEditingController additionalCommentsController = TextEditingController(); // Additional Comments
-
-
-  final TextEditingController victimEmailController = TextEditingController();
 
   String fileName = "No file selected";
   final _formKey = GlobalKey<FormState>();
-  List<String> _districts = [];
-  List<String> _tehsils = [];
-  String? _selectedDistrict;
-  String? _selectedGender;
+
+  String? _selectedComplaintType;
   File? selectedFile;
   String? fileUrl;
 
@@ -82,15 +75,15 @@ class _ComplaintAgianstPoliceScreenState extends State<ComplaintAgianstPoliceScr
         artDialogArgs: ArtDialogArgs(
           type: ArtSweetAlertType.info,
           title: "Confirm Submission",
-          text: "Are you sure you want to submit the form?",
+          text: "Are you sure you want to submit the complaint?",
           confirmButtonText: "Submit",
           cancelButtonText: "Cancel",
           onConfirm: () async {
-            Navigator.of(context).pop(); // Close the SweetAlert dialog
+            Navigator.of(context).pop(); // Close SweetAlert dialog
 
             try {
               if (selectedFile != null) {
-                await uploadFile(selectedFile!); // Upload the selected file
+                await uploadFile(selectedFile!); // Upload file
               }
 
               // Get logged-in user's UID
@@ -100,25 +93,23 @@ class _ComplaintAgianstPoliceScreenState extends State<ComplaintAgianstPoliceScr
               }
 
               // Reference to Firestore collection
-              CollectionReference preFIRCollection =
-              FirebaseFirestore.instance.collection('pre_fir');
+              CollectionReference complaintsCollection =
+              FirebaseFirestore.instance.collection('complaints_against_police');
 
               // Add form data to Firestore with userId
-              await preFIRCollection.add({
+              await complaintsCollection.add({
                 'complainant_name': fullNameController.text,
                 'email': emailController.text,
                 'cnic': cnicController.text,
                 'contact': phoneController.text,
+                'complaint_type': _selectedComplaintType, // ✅ New field added
                 'incident_subject': subjectController.text,
                 'incident_date': incidentDateController.text,
-                'reporting_date': incidentReportDateController.text,
                 'incident_location': incidentLocationController.text,
                 'incident_detail': reportIncidentController.text,
-                'victim_gender': _selectedGender,
                 'file_url': fileUrl,
                 'status': 'New',
                 'timestamp': FieldValue.serverTimestamp(),
-                'complainant_gender': _selectedGender,
                 'userId': userId, // ✅ Attach UID
               });
 
@@ -128,7 +119,7 @@ class _ComplaintAgianstPoliceScreenState extends State<ComplaintAgianstPoliceScr
                 artDialogArgs: ArtDialogArgs(
                   type: ArtSweetAlertType.success,
                   title: "Success",
-                  text: "FIR Submitted Successfully!",
+                  text: "Complaint Against Police Submitted Successfully!",
                   confirmButtonText: "OK",
                 ),
               );
@@ -143,7 +134,7 @@ class _ComplaintAgianstPoliceScreenState extends State<ComplaintAgianstPoliceScr
                 artDialogArgs: ArtDialogArgs(
                   type: ArtSweetAlertType.warning,
                   title: "Error",
-                  text: "Error submitting form: $e",
+                  text: "Error submitting complaint: $e",
                   confirmButtonText: "OK",
                 ),
               );
@@ -158,89 +149,6 @@ class _ComplaintAgianstPoliceScreenState extends State<ComplaintAgianstPoliceScr
   }
 
 
-  // void submitForm() async {
-  //   if (_formKey.currentState!.validate()) {
-  //     ArtSweetAlert.show(
-  //       context: context,
-  //       artDialogArgs: ArtDialogArgs(
-  //         type: ArtSweetAlertType.info, // Info type for confirmation dialog
-  //         title: "Confirm Submission",
-  //         text: "Are you sure you want to submit the form?",
-  //         confirmButtonText: "Submit",
-  //         cancelButtonText: "Cancel",
-  //         onConfirm: () async {
-  //           Navigator.of(context).pop(); // Close the SweetAlert dialog
-  //
-  //           try {
-  //             if (selectedFile != null) {
-  //               // Upload the selected file
-  //               await uploadFile(selectedFile!);
-  //             }
-  //
-  //             // Reference to Firestore collection
-  //             CollectionReference preFIRCollection = FirebaseFirestore.instance.collection('pre_fir');
-  //
-  //             // Add form data to Firestore with default status "New"
-  //             await preFIRCollection.add({
-  //               'complainant_name': fullNameController.text,
-  //               'email': emailController.text,
-  //               'cnic': cnicController.text,
-  //               'contact': phoneController.text,
-  //               'incident_subject': subjectController.text,
-  //               'incident_date': incidentDateController.text,
-  //               'reporting_date': incidentReportDateController.text,
-  //               'incident_location': incidentLocationController.text,
-  //               'incident_detail': reportIncidentController.text,
-  //               'victim_name': victimNameController.text,
-  //               'victim_cnic': victimCnicController.text,
-  //               'victim_address': victimAddressController.text,
-  //               'victim_contact': victimContactController.text,
-  //               'victim_gender': _selectedGender, // Use gender for victim gender
-  //               'suspect_name': suspectNameController.text,
-  //               'suspect_address': suspectAddressController.text,
-  //               'suspect_description': suspectDetailController.text,
-  //               'witness_name': witnessNameController.text,
-  //               'witness_contact': witnessContactController.text,
-  //               'file_url': fileUrl, // Store file URL from Firebase Storage
-  //               'status': 'New', // Default status as "New"
-  //               'timestamp': FieldValue.serverTimestamp(), // Server timestamp
-  //               'complainant_gender': _selectedGender, // Use gender for complainant gender
-  //             });
-  //
-  //             // Show success message
-  //             ArtSweetAlert.show(
-  //               context: context,
-  //               artDialogArgs: ArtDialogArgs(
-  //                 type: ArtSweetAlertType.success, // Success type
-  //                 title: "Success",
-  //                 text: "FIR Submitted Successfully!",
-  //                 confirmButtonText: "OK",
-  //               ),
-  //             );
-  //
-  //             // Reset form and fields
-  //             _formKey.currentState?.reset(); // Reset the form
-  //             clearControllers();
-  //           } catch (e) {
-  //             // Show error message
-  //             ArtSweetAlert.show(
-  //               context: context,
-  //               artDialogArgs: ArtDialogArgs(
-  //                 type: ArtSweetAlertType.warning, // Warning type (since error is not available)
-  //                 title: "Error",
-  //                 text: "Error submitting form: $e",
-  //                 confirmButtonText: "OK",
-  //               ),
-  //             );
-  //           }
-  //         },
-  //         onCancel: () {
-  //           Navigator.of(context).pop(); // Close the SweetAlert dialog on cancel
-  //         },
-  //       ),
-  //     );
-  //   }
-  // }
 
   void clearControllers() {
     fullNameController.clear();
@@ -249,10 +157,8 @@ class _ComplaintAgianstPoliceScreenState extends State<ComplaintAgianstPoliceScr
     phoneController.clear();
     subjectController.clear();
     incidentDateController.clear();
-    incidentReportDateController.clear();
     incidentLocationController.clear();
     reportIncidentController.clear();
-    _selectedGender = null; // Reset the gender value
     fileName = '';
     fileUrl = '';
   }
@@ -289,28 +195,6 @@ class _ComplaintAgianstPoliceScreenState extends State<ComplaintAgianstPoliceScr
     }
   }
 
-  void _fetchDistricts() async {
-    try {
-      final snapshot =
-      await FirebaseFirestore.instance.collection('sindh_districts').get();
-
-      setState(() {
-        _districts = snapshot.docs
-            .map((doc) => doc.id)
-            .toList(); // Get district names from Firestore documents
-      });
-    } catch (e) {
-      print("Error fetching districts: $e");
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchDistricts(); // Fetch districts when the screen loads
-  }
-
-
   // Date Picker
   Future<void> _selectDate(BuildContext context, TextEditingController controller) async {
     final DateTime? picked = await showDatePicker(
@@ -326,7 +210,6 @@ class _ComplaintAgianstPoliceScreenState extends State<ComplaintAgianstPoliceScr
       });
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -384,7 +267,7 @@ class _ComplaintAgianstPoliceScreenState extends State<ComplaintAgianstPoliceScr
                 TextSpan(
                   children: [
                     TextSpan(
-                      text: 'PRE FIR AGAINST ',
+                      text: 'COMPLAINT AGAINST ',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 16,
@@ -395,7 +278,7 @@ class _ComplaintAgianstPoliceScreenState extends State<ComplaintAgianstPoliceScr
                       ),
                     ),
                     TextSpan(
-                      text: 'CRIME',
+                      text: 'POLICE',
                       style: TextStyle(
                         color: Color(0xFFE22128),
                         fontSize: 16,
@@ -460,6 +343,8 @@ class _ComplaintAgianstPoliceScreenState extends State<ComplaintAgianstPoliceScr
                                     fontSize: 16,
                                   ),
                                 ),
+                                const SizedBox(height: 10),
+                                _buildComplaintTypeDropdown(),
                                 const SizedBox(height: 10),
                                 _buildTextField(subjectController, 'Complaint Subject', Icons.subject, isRequired: true),
                                 const SizedBox(height: 10),
@@ -709,6 +594,86 @@ class _ComplaintAgianstPoliceScreenState extends State<ComplaintAgianstPoliceScr
             LengthLimitingTextInputFormatter(11), // Limit to 11 digits only
           ],
         ],
+      ),
+    );
+  }
+
+  Widget _buildComplaintTypeDropdown() {
+    List<String> complaintTypes = [
+      "Police Misconduct",
+      "Bribery & Corruption",
+      "Excessive Force",
+      "False Charges",
+      "Negligence of Duty",
+      "Harassment & Abuse",
+      "Others",
+    ];
+
+    return SizedBox(
+      width: 300.0,
+      child: DropdownButtonFormField<String>(
+        value: _selectedComplaintType,
+        decoration: InputDecoration(
+          labelText: 'Select Complaint Type',
+          border: const OutlineInputBorder(),
+          labelStyle: TextStyle(
+            color: const Color(0xFF203982).withAlpha((0.7 * 255).toInt()),
+            fontSize: 13.0,
+          ),
+          contentPadding: const EdgeInsets.symmetric(
+            vertical: 8.0,
+            horizontal: 10.0,
+          ),
+          prefixIcon: ShaderMask(
+            shaderCallback: (Rect bounds) {
+              return const LinearGradient(
+                colors: [Color(0xFF203982), Colors.red],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ).createShader(bounds);
+            },
+            child: Icon(
+              Icons.gavel, // Icon for legal issues
+              color: Colors.red.shade100,
+              size: 19.5,
+            ),
+          ),
+          enabledBorder: const OutlineInputBorder(
+            borderSide: BorderSide(
+              color: Color(0xFF203982),
+              width: 0.6,
+            ),
+          ),
+          focusedBorder: const OutlineInputBorder(
+            borderSide: BorderSide(
+              color: Color(0xFF203982),
+              width: 1.0,
+            ),
+          ),
+        ),
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Please select a complaint type';
+          }
+          return null;
+        },
+        onChanged: (String? newValue) {
+          setState(() {
+            _selectedComplaintType = newValue;
+          });
+        },
+        items: complaintTypes.map<DropdownMenuItem<String>>((String complaint) {
+          return DropdownMenuItem<String>(
+            value: complaint,
+            child: Text(
+              complaint,
+              style: const TextStyle(
+                color: Color(0xFF203982),
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          );
+        }).toList(),
       ),
     );
   }

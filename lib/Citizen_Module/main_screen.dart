@@ -1,3 +1,4 @@
+import 'package:fyp_v2/Citizen_Module/complaint_agianst_police_screen.dart';
 import 'package:fyp_v2/Citizen_Module/crime_report_screen.dart';
 import 'package:fyp_v2/Citizen_Module/fir_tracking_screen.dart';
 import 'package:fyp_v2/Citizen_Module/igpwebscreenview.dart';
@@ -528,7 +529,7 @@ class _MainScreenState extends State<MainScreen> {
                               onTap: () {
                                 Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (context) => const CrimeReportScreen()),
+                                  MaterialPageRoute(builder: (context) => const ComplaintAgianstPoliceScreen()),
                                 );
                               },
                               child: Container(
