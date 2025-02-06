@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:art_sweetalert/art_sweetalert.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path/path.dart' as path;
@@ -62,6 +63,8 @@ class _CrimeReportScreenState extends State<CrimeReportScreen> {
   File? selectedFile;
   String? fileUrl;
 
+  String? userId = FirebaseAuth.instance.currentUser?.uid;
+
 
   TextEditingValue formatEditUpdate(
       TextEditingValue oldValue, TextEditingValue newValue)
@@ -92,13 +95,12 @@ class _CrimeReportScreenState extends State<CrimeReportScreen> {
     );
   }
 
-
   void submitForm() async {
     if (_formKey.currentState!.validate()) {
       ArtSweetAlert.show(
         context: context,
         artDialogArgs: ArtDialogArgs(
-          type: ArtSweetAlertType.info, // Info type for confirmation dialog
+          type: ArtSweetAlertType.info,
           title: "Confirm Submission",
           text: "Are you sure you want to submit the form?",
           confirmButtonText: "Submit",
@@ -108,14 +110,20 @@ class _CrimeReportScreenState extends State<CrimeReportScreen> {
 
             try {
               if (selectedFile != null) {
-                // Upload the selected file
-                await uploadFile(selectedFile!);
+                await uploadFile(selectedFile!); // Upload the selected file
+              }
+
+              // Get logged-in user's UID
+              String? userId = FirebaseAuth.instance.currentUser?.uid;
+              if (userId == null) {
+                throw "User not logged in!";
               }
 
               // Reference to Firestore collection
-              CollectionReference preFIRCollection = FirebaseFirestore.instance.collection('pre_fir');
+              CollectionReference preFIRCollection =
+              FirebaseFirestore.instance.collection('pre_fir');
 
-              // Add form data to Firestore with default status "New"
+              // Add form data to Firestore with userId
               await preFIRCollection.add({
                 'complainant_name': fullNameController.text,
                 'email': emailController.text,
@@ -130,23 +138,24 @@ class _CrimeReportScreenState extends State<CrimeReportScreen> {
                 'victim_cnic': victimCnicController.text,
                 'victim_address': victimAddressController.text,
                 'victim_contact': victimContactController.text,
-                'victim_gender': _selectedGender, // Use gender for victim gender
+                'victim_gender': _selectedGender,
                 'suspect_name': suspectNameController.text,
                 'suspect_address': suspectAddressController.text,
                 'suspect_description': suspectDetailController.text,
                 'witness_name': witnessNameController.text,
                 'witness_contact': witnessContactController.text,
-                'file_url': fileUrl, // Store file URL from Firebase Storage
-                'status': 'New', // Default status as "New"
-                'timestamp': FieldValue.serverTimestamp(), // Server timestamp
-                'complainant_gender': _selectedGender, // Use gender for complainant gender
+                'file_url': fileUrl,
+                'status': 'New',
+                'timestamp': FieldValue.serverTimestamp(),
+                'complainant_gender': _selectedGender,
+                'userId': userId, // ✅ Attach UID
               });
 
               // Show success message
               ArtSweetAlert.show(
                 context: context,
                 artDialogArgs: ArtDialogArgs(
-                  type: ArtSweetAlertType.success, // Success type
+                  type: ArtSweetAlertType.success,
                   title: "Success",
                   text: "FIR Submitted Successfully!",
                   confirmButtonText: "OK",
@@ -154,14 +163,14 @@ class _CrimeReportScreenState extends State<CrimeReportScreen> {
               );
 
               // Reset form and fields
-              _formKey.currentState?.reset(); // Reset the form
+              _formKey.currentState?.reset();
               clearControllers();
             } catch (e) {
               // Show error message
               ArtSweetAlert.show(
                 context: context,
                 artDialogArgs: ArtDialogArgs(
-                  type: ArtSweetAlertType.warning, // Warning type (since error is not available)
+                  type: ArtSweetAlertType.warning,
                   title: "Error",
                   text: "Error submitting form: $e",
                   confirmButtonText: "OK",
@@ -170,12 +179,97 @@ class _CrimeReportScreenState extends State<CrimeReportScreen> {
             }
           },
           onCancel: () {
-            Navigator.of(context).pop(); // Close the SweetAlert dialog on cancel
+            Navigator.of(context).pop();
           },
         ),
       );
     }
   }
+
+
+  // void submitForm() async {
+  //   if (_formKey.currentState!.validate()) {
+  //     ArtSweetAlert.show(
+  //       context: context,
+  //       artDialogArgs: ArtDialogArgs(
+  //         type: ArtSweetAlertType.info, // Info type for confirmation dialog
+  //         title: "Confirm Submission",
+  //         text: "Are you sure you want to submit the form?",
+  //         confirmButtonText: "Submit",
+  //         cancelButtonText: "Cancel",
+  //         onConfirm: () async {
+  //           Navigator.of(context).pop(); // Close the SweetAlert dialog
+  //
+  //           try {
+  //             if (selectedFile != null) {
+  //               // Upload the selected file
+  //               await uploadFile(selectedFile!);
+  //             }
+  //
+  //             // Reference to Firestore collection
+  //             CollectionReference preFIRCollection = FirebaseFirestore.instance.collection('pre_fir');
+  //
+  //             // Add form data to Firestore with default status "New"
+  //             await preFIRCollection.add({
+  //               'complainant_name': fullNameController.text,
+  //               'email': emailController.text,
+  //               'cnic': cnicController.text,
+  //               'contact': phoneController.text,
+  //               'incident_subject': subjectController.text,
+  //               'incident_date': incidentDateController.text,
+  //               'reporting_date': incidentReportDateController.text,
+  //               'incident_location': incidentLocationController.text,
+  //               'incident_detail': reportIncidentController.text,
+  //               'victim_name': victimNameController.text,
+  //               'victim_cnic': victimCnicController.text,
+  //               'victim_address': victimAddressController.text,
+  //               'victim_contact': victimContactController.text,
+  //               'victim_gender': _selectedGender, // Use gender for victim gender
+  //               'suspect_name': suspectNameController.text,
+  //               'suspect_address': suspectAddressController.text,
+  //               'suspect_description': suspectDetailController.text,
+  //               'witness_name': witnessNameController.text,
+  //               'witness_contact': witnessContactController.text,
+  //               'file_url': fileUrl, // Store file URL from Firebase Storage
+  //               'status': 'New', // Default status as "New"
+  //               'timestamp': FieldValue.serverTimestamp(), // Server timestamp
+  //               'complainant_gender': _selectedGender, // Use gender for complainant gender
+  //             });
+  //
+  //             // Show success message
+  //             ArtSweetAlert.show(
+  //               context: context,
+  //               artDialogArgs: ArtDialogArgs(
+  //                 type: ArtSweetAlertType.success, // Success type
+  //                 title: "Success",
+  //                 text: "FIR Submitted Successfully!",
+  //                 confirmButtonText: "OK",
+  //               ),
+  //             );
+  //
+  //             // Reset form and fields
+  //             _formKey.currentState?.reset(); // Reset the form
+  //             clearControllers();
+  //           } catch (e) {
+  //             // Show error message
+  //             ArtSweetAlert.show(
+  //               context: context,
+  //               artDialogArgs: ArtDialogArgs(
+  //                 type: ArtSweetAlertType.warning, // Warning type (since error is not available)
+  //                 title: "Error",
+  //                 text: "Error submitting form: $e",
+  //                 confirmButtonText: "OK",
+  //               ),
+  //             );
+  //           }
+  //         },
+  //         onCancel: () {
+  //           Navigator.of(context).pop(); // Close the SweetAlert dialog on cancel
+  //         },
+  //       ),
+  //     );
+  //   }
+  // }
 
   void clearControllers() {
     fullNameController.clear();

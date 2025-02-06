@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:timeline_tile/timeline_tile.dart';
 
@@ -9,14 +10,13 @@ class PreFIRViewScreen extends StatefulWidget {
   @override
   State<PreFIRViewScreen> createState() => _PreFIRViewScreenState();
 }
-
 class _PreFIRViewScreenState extends State<PreFIRViewScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF2A489E),
       body: SafeArea(
-        child: SingleChildScrollView( // Make the entire screen scrollable
+        child: SingleChildScrollView(
           child: Column(
             children: [
               const SizedBox(height: 10),
@@ -66,12 +66,28 @@ class _PreFIRViewScreenState extends State<PreFIRViewScreen> {
                       {'label': 'Contact', 'value': widget.firData['victim_contact']},
                     ]),
 
-                    // FIR Status
+                    // Suspects Details
+                    _buildSectionHeader('Suspect Information'),
+                    _buildDataTable([
+                      {'label': 'Name', 'value': widget.firData['suspect_name']},
+                      {'label': 'Address', 'value': widget.firData['suspect_address']},
+                      {'label': 'Description', 'value': widget.firData['suspect_description']},
+                    ]),
+
+                    // Suspects Details
+                    _buildSectionHeader('Witness Information'),
+                    _buildDataTable([
+                      {'label': 'Name', 'value': widget.firData['witness_name']},
+                      {'label': 'Contact', 'value': widget.firData['witness_contact']},
+                    ]),
+
+
+                    // FIR Status with Dynamic Color
                     _buildSectionHeader('FIR Status'),
                     _buildDataTable([
                       {'label': 'Status', 'value': widget.firData['status']},
                       {'label': 'Reporting Date', 'value': widget.firData['reporting_date']},
-                    ]),
+                    ], isStatusSection: true),
 
                     // FIR Status Timeline moved to the end
                     _buildSectionHeader('FIR Progress'),
@@ -87,7 +103,7 @@ class _PreFIRViewScreenState extends State<PreFIRViewScreen> {
   }
 
   // 📌 Table-Based Detail Display
-  Widget _buildDataTable(List<Map<String, String?>> data) {
+  Widget _buildDataTable(List<Map<String, String?>> data, {bool isStatusSection = false}) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
@@ -111,7 +127,10 @@ class _PreFIRViewScreenState extends State<PreFIRViewScreen> {
           return TableRow(
             children: [
               _buildTableCell(item['label']!, isHeader: true),
-              _buildTableCell(item['value'] ?? 'Not Available'),
+              // If this is the FIR Status section, apply color to status value
+              isStatusSection
+                  ? _buildTableCellWithColor(item['value'] ?? 'Not Available', item['value'])
+                  : _buildTableCell(item['value'] ?? 'Not Available'),
             ],
           );
         }).toList(),
@@ -119,7 +138,22 @@ class _PreFIRViewScreenState extends State<PreFIRViewScreen> {
     );
   }
 
-  // 📌 Table Cell Design
+  // 📌 Table Cell Design with Dynamic Color for Status
+  Widget _buildTableCellWithColor(String text, String? status) {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.normal,
+          color: _getStatusColor(status ?? 'Not Available'),
+        ),
+      ),
+    );
+  }
+
+  // 📌 Table Cell Design (No color change)
   Widget _buildTableCell(String text, {bool isHeader = false}) {
     return Padding(
       padding: const EdgeInsets.all(10.0),
@@ -149,59 +183,100 @@ class _PreFIRViewScreenState extends State<PreFIRViewScreen> {
     );
   }
 
-  // 📌 Timeline Tracking
+  // 📌 TimeLine Section
   Widget _buildTimeline(String status) {
-    List<String> steps = [
-      "Under Review",
-      "In Process",
-      "Resolved",
-      "Rejected",
-      "Closed"
-    ];
-    int currentIndex = steps.indexOf(status);
+    return StreamBuilder<DocumentSnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('firData') // Firestore collection where FIR data is stored
+          .doc(widget.firData['firId']) // FIR document ID
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-    return Column(
-      children: List.generate(steps.length, (index) {
-        return TimelineTile(
-          alignment: TimelineAlign.start,
-          isFirst: index == 0,
-          isLast: index == steps.length - 1,
-          beforeLineStyle: LineStyle(
-            color: index <= currentIndex ? Colors.green : Color(0xFF2A489E).withAlpha((0.4 * 255).toInt()),
-          ),
-          indicatorStyle: IndicatorStyle(
-            color: index <= currentIndex ? Colors.green : Color(0xFF2A489E).withAlpha((0.8 * 255).toInt()),
-            width: 20,
-          ),
-          endChild: Padding(
-            padding: const EdgeInsets.only(top: 20, right: 140, bottom: 18),
-            child: Column(
-              children: [
-                SizedBox(height: 4),  // Slight space between the text and line
-                Card(
-                  elevation: 4,  // Adds shadow for card effect
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),  // Rounded corners for card
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),  // Padding inside the card
-                    child: Text(
-                      steps[index],
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: index <= currentIndex ? Colors.green : Color(0xFF2A489E).withAlpha((0.7 * 255).toInt()),
+        // Check if data exists
+        if (!snapshot.data!.exists) {
+          return const Center(child: Text('FIR data not found'));
+        }
+
+        // Use the passed status parameter instead of fetching it from Firestore
+        List<String> steps = [
+          "Under Review",
+          "In Process",
+          "Resolved",
+          "Rejected",
+          "Closed"
+        ];
+        int currentIndex = steps.indexOf(status);
+
+        return Column(
+          children: List.generate(steps.length, (index) {
+            return TimelineTile(
+              alignment: TimelineAlign.start,
+              isFirst: index == 0,
+              isLast: index == steps.length - 1,
+              beforeLineStyle: LineStyle(
+                color: index <= currentIndex
+                    ? Colors.green
+                    : Color(0xFF2A489E).withAlpha((0.4 * 255).toInt()),
+              ),
+              indicatorStyle: IndicatorStyle(
+                color: index <= currentIndex
+                    ? Colors.green
+                    : Color(0xFF2A489E).withAlpha((0.8 * 255).toInt()),
+                width: 20,
+              ),
+              endChild: Padding(
+                padding: const EdgeInsets.only(top: 20, right: 140, bottom: 18),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 4),
+                    Card(
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          steps[index],
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: index <= currentIndex
+                                ? Colors.green
+                                : Color(0xFF2A489E).withAlpha((0.7 * 255).toInt()),
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
-          ),
+              ),
+            );
+          }),
         );
-      }),
+      },
     );
+  }
 
+  // Function to get dynamic color for status
+  Color _getStatusColor(String status) {
+    switch (status) {
+      case 'Under Review':
+        return Colors.orange;
+      case 'In Process':
+        return Colors.blue;
+      case 'Resolved':
+        return Colors.green;
+      case 'Rejected':
+        return Colors.red;
+      case 'Closed':
+        return Colors.grey;
+      default:
+        return Colors.black;
+    }
   }
 
   TextStyle _textStyle(double fontSize, Color color) {
