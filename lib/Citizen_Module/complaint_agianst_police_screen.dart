@@ -148,8 +148,6 @@ class _ComplaintAgianstPoliceScreenState extends State<ComplaintAgianstPoliceScr
     }
   }
 
-
-
   void clearControllers() {
     fullNameController.clear();
     emailController.clear();

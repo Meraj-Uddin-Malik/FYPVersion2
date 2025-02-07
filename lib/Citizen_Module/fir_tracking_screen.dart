@@ -15,7 +15,14 @@ class _PreFIRTrackingScreenState extends State<PreFIRTrackingScreen> {
   String selectedStatus = 'All';
   TextEditingController searchController = TextEditingController();
 
-  final List<String> statusOptions = ['All', 'New', 'Pending', 'Resolved', 'Rejected', 'In Progress'];
+  final List<String> statusOptions = [
+    'All',
+    'New',
+    'Pending',
+    'Resolved',
+    'Rejected',
+    'In Progress'
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -53,16 +60,20 @@ class _PreFIRTrackingScreenState extends State<PreFIRTrackingScreen> {
                           color: const Color(0xFF203982).withOpacity(0.7),
                           fontSize: 15,
                         ),
-                        prefixIcon: const Icon(Icons.search, color: Color(0xFF203982)),
+                        prefixIcon:
+                            const Icon(Icons.search, color: Color(0xFF203982)),
                         border: const OutlineInputBorder(),
                         enabledBorder: const OutlineInputBorder(
-                          borderSide: BorderSide(color: Color(0xFF203982), width: 0.6),
+                          borderSide:
+                              BorderSide(color: Color(0xFF203982), width: 0.6),
                         ),
                         focusedBorder: const OutlineInputBorder(
-                          borderSide: BorderSide(color: Color(0xFF203982), width: 1.0),
+                          borderSide:
+                              BorderSide(color: Color(0xFF203982), width: 1.0),
                         ),
                       ),
-                      style: const TextStyle(color: Color(0xFF2A489E), fontSize: 14.0),
+                      style: const TextStyle(
+                          color: Color(0xFF2A489E), fontSize: 14.0),
                       cursorColor: const Color(0xFF2A489E),
                       onChanged: (value) {
                         setState(() {
@@ -80,15 +91,19 @@ class _PreFIRTrackingScreenState extends State<PreFIRTrackingScreen> {
                           fontSize: 13.0,
                         ),
                         border: const OutlineInputBorder(),
-                        prefixIcon: const Icon(Icons.filter_list, color: Color(0xFF203982)),
+                        prefixIcon: const Icon(Icons.filter_list,
+                            color: Color(0xFF203982)),
                         enabledBorder: const OutlineInputBorder(
-                          borderSide: BorderSide(color: Color(0xFF203982), width: 0.6),
+                          borderSide:
+                              BorderSide(color: Color(0xFF203982), width: 0.6),
                         ),
                         focusedBorder: const OutlineInputBorder(
-                          borderSide: BorderSide(color: Color(0xFF203982), width: 1.0),
+                          borderSide:
+                              BorderSide(color: Color(0xFF203982), width: 1.0),
                         ),
                       ),
-                      style: const TextStyle(color: Color(0xFF2A489E), fontSize: 14.0),
+                      style: const TextStyle(
+                          color: Color(0xFF2A489E), fontSize: 14.0),
                       dropdownColor: Colors.white,
                       onChanged: (value) {
                         setState(() {
@@ -98,7 +113,9 @@ class _PreFIRTrackingScreenState extends State<PreFIRTrackingScreen> {
                       items: statusOptions.map((status) {
                         return DropdownMenuItem(
                           value: status,
-                          child: Text(status, style: const TextStyle(color: Color(0xFF2A489E), fontSize: 14.0)),
+                          child: Text(status,
+                              style: const TextStyle(
+                                  color: Color(0xFF2A489E), fontSize: 14.0)),
                         );
                       }).toList(),
                     ),
@@ -107,25 +124,34 @@ class _PreFIRTrackingScreenState extends State<PreFIRTrackingScreen> {
                       child: StreamBuilder<QuerySnapshot>(
                         stream: FirebaseFirestore.instance
                             .collection('pre_fir')
-                            .where('userId', isEqualTo: FirebaseAuth.instance.currentUser?.uid ?? '') // ✅ Fetch only current user's FIRs
+                            .where('userId',
+                                isEqualTo:
+                                    FirebaseAuth.instance.currentUser?.uid ??
+                                        '') // ✅ Fetch only current user's FIRs
                             .snapshots(),
                         builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                            return const Center(child: CircularProgressIndicator());
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                                child: CircularProgressIndicator());
                           }
 
                           if (!snapshot.hasData) {
-                            return const Center(child: Text('No FIR records found.'));
+                            return const Center(
+                                child: Text('No FIR records found.'));
                           }
 
                           var docs = snapshot.data!.docs;
                           var firList = docs.where((doc) {
                             var data = doc.data() as Map<String, dynamic>;
-                            var subject = data['incident_subject'].toString().toLowerCase();
+                            var subject = data['incident_subject']
+                                .toString()
+                                .toLowerCase();
                             var status = data['status'];
 
                             bool matchesSearch = subject.contains(searchQuery);
-                            bool matchesStatus = selectedStatus == 'All' || status == selectedStatus;
+                            bool matchesStatus = selectedStatus == 'All' ||
+                                status == selectedStatus;
 
                             return matchesSearch && matchesStatus;
                           }).toList();
@@ -134,13 +160,16 @@ class _PreFIRTrackingScreenState extends State<PreFIRTrackingScreen> {
                           firList.sort((a, b) {
                             var dataA = a.data() as Map<String, dynamic>;
                             var dataB = b.data() as Map<String, dynamic>;
-                            return (dataB['timestamp'] ?? 0).compareTo(dataA['timestamp'] ?? 0);
+                            return (dataB['timestamp'] ?? 0)
+                                .compareTo(dataA['timestamp'] ?? 0);
                           });
 
                           if (docs.isNotEmpty && firList.isEmpty) {
-                            return const Center(child: Text('No matching FIRs found.'));
+                            return const Center(
+                                child: Text('No matching FIRs found.'));
                           } else if (docs.isEmpty) {
-                            return const Center(child: Text('No FIR records found.'));
+                            return const Center(
+                                child: Text('No FIR records found.'));
                           }
 
                           return ListView.builder(
@@ -161,7 +190,8 @@ class _PreFIRTrackingScreenState extends State<PreFIRTrackingScreen> {
                                     ),
                                   ),
                                   subtitle: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       // Row to display Status and its value on the same line
                                       Row(
@@ -170,7 +200,8 @@ class _PreFIRTrackingScreenState extends State<PreFIRTrackingScreen> {
                                           Text(
                                             'Status: ',
                                             style: TextStyle(
-                                              color: Color(0xFF2A489E).withOpacity(0.8),
+                                              color: Color(0xFF2A489E)
+                                                  .withOpacity(0.8),
                                               fontSize: 12,
                                               fontWeight: FontWeight.bold,
                                             ),
@@ -179,7 +210,9 @@ class _PreFIRTrackingScreenState extends State<PreFIRTrackingScreen> {
                                           Text(
                                             '${data['status'] ?? 'Unknown'}',
                                             style: TextStyle(
-                                              color: _getStatusColor(data['status'] ?? 'Unknown'), // Dynamic color for the status value
+                                              color: _getStatusColor(data[
+                                                      'status'] ??
+                                                  'Unknown'), // Dynamic color for the status value
                                               fontSize: 12,
                                               fontWeight: FontWeight.bold,
                                             ),
@@ -190,7 +223,8 @@ class _PreFIRTrackingScreenState extends State<PreFIRTrackingScreen> {
                                       Text(
                                         'Date: ${data['incident_date'] ?? 'Unknown'}',
                                         style: TextStyle(
-                                          color: Color(0xFF2A489E).withOpacity(0.8),
+                                          color: Color(0xFF2A489E)
+                                              .withOpacity(0.8),
                                           fontSize: 12,
                                         ),
                                       ),
@@ -208,17 +242,15 @@ class _PreFIRTrackingScreenState extends State<PreFIRTrackingScreen> {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => PreFIRViewScreen(firData: data),
+                                        builder: (context) =>
+                                            PreFIRViewScreen(firData: data),
                                       ),
                                     );
                                   },
                                 ),
                               );
-
                             },
                           );
-
-
                         },
                       ),
                     ),
@@ -249,8 +281,11 @@ class _PreFIRTrackingScreenState extends State<PreFIRTrackingScreen> {
     }
   }
 
-
   TextStyle _textStyle(double fontSize, Color color) {
-    return TextStyle(fontFamily: 'Barlow', fontSize: fontSize, fontWeight: FontWeight.bold, color: color);
+    return TextStyle(
+        fontFamily: 'Barlow',
+        fontSize: fontSize,
+        fontWeight: FontWeight.bold,
+        color: color);
   }
 }

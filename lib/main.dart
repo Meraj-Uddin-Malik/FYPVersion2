@@ -1,10 +1,16 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:fyp_v2/Admin_Module/admin_main_screen.dart';
 import 'package:fyp_v2/Admin_Module/prefir_managment_screen.dart';
 import 'package:fyp_v2/Citizen_Module/complaint_agianst_police_screen.dart';
 import 'package:fyp_v2/Citizen_Module/fir_tracking_screen.dart';
 import 'package:fyp_v2/Citizen_Module/forgotpass_screen.dart';
 import 'package:fyp_v2/Citizen_Module/missingfoundreport_screen.dart';
+import 'package:fyp_v2/Citizen_Module/profile_screen.dart';
+import 'package:fyp_v2/Citizen_Module/saftytips_screen.dart';
+import 'package:fyp_v2/Citizen_Module/services_screen.dart';
+import 'package:fyp_v2/Citizen_Module/settings_screen.dart';
+import 'package:fyp_v2/Citizen_Module/soss_screen.dart';
 import 'Citizen_Module/login_screen.dart';
 import 'Citizen_Module/main_screen.dart';
 import 'Citizen_Module/signup_screen.dart';
@@ -26,7 +32,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: MissingfoundreportScreen(),
+      home: AdminMainScreen(),
       // initialRoute: '/',  // Initial route set to SplashScreen
       // routes: {
       //   '/': (context) => const Splashscreen(),
@@ -37,6 +43,7 @@ class MyApp extends StatelessWidget {
       //   '/forgotpass_screen': (context) =>  const ForgotPasswordScreen(),
       //   '/fir_tracking_screen': (context) =>  const PreFIRTrackingScreen(),
       //   '/fir_view_screen': (context) =>  const PreFIRTrackingScreen(),
+      //   '/soss_screen': (context) =>  const SossScreen(),
       // },
     );
   }
