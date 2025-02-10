@@ -14,9 +14,9 @@ class _CrimeStatisticsScreenState extends State<CrimeStatisticsScreen> {
   int openCases = 0;
   int resolvedCases = 0;
   int pendingCases = 0;
+  int closedCases = 0; // Closed (Rejected) cases
 
   String selectedCrimeType = "All";
-  DateTime? selectedDate;
 
   final List<String> crimeTypes = [
     "All",
@@ -27,9 +27,6 @@ class _CrimeStatisticsScreenState extends State<CrimeStatisticsScreen> {
     "Others",
   ];
 
-  String selectedCrimeOrIncidentType = "All"; // Default value
-
-
   @override
   void initState() {
     super.initState();
@@ -38,20 +35,20 @@ class _CrimeStatisticsScreenState extends State<CrimeStatisticsScreen> {
 
   Future<void> fetchCrimeData() async {
     QuerySnapshot snapshot =
-        await FirebaseFirestore.instance.collection('pre_fir').get();
+    await FirebaseFirestore.instance.collection('pre_fir').get();
 
     List<DocumentSnapshot> docs = snapshot.docs;
 
-    int open = 0, resolved = 0, pending = 0, total = docs.length;
+    int open = 0, resolved = 0, pending = 0, closed = 0, total = docs.length;
 
     for (var doc in docs) {
       var data = doc.data() as Map<String, dynamic>;
       String status = data['status'] ?? 'Unknown';
 
-      if (status == "Open") open++;
+      if (status == "New") open++;
       if (status == "Resolved") resolved++;
       if (status == "Pending") pending++;
-      if (status == "Rejected") pending++;
+      if (status == "Rejected") closed++;
     }
 
     setState(() {
@@ -59,6 +56,7 @@ class _CrimeStatisticsScreenState extends State<CrimeStatisticsScreen> {
       openCases = open;
       resolvedCases = resolved;
       pendingCases = pending;
+      closedCases = closed;
     });
   }
 
@@ -85,7 +83,6 @@ class _CrimeStatisticsScreenState extends State<CrimeStatisticsScreen> {
                       fontSize: 16,
                       fontFamily: 'Barlow',
                       fontWeight: FontWeight.w700,
-                      height: 0,
                       letterSpacing: 3.36,
                     ),
                   ),
@@ -96,7 +93,6 @@ class _CrimeStatisticsScreenState extends State<CrimeStatisticsScreen> {
                       fontSize: 16,
                       fontFamily: 'Barlow',
                       fontWeight: FontWeight.w700,
-                      height: 0,
                       letterSpacing: 3.36,
                     ),
                   ),
@@ -107,7 +103,7 @@ class _CrimeStatisticsScreenState extends State<CrimeStatisticsScreen> {
             const SizedBox(height: 20),
             Expanded(
               child: Container(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(25),
                 decoration: const BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.only(
@@ -120,12 +116,13 @@ class _CrimeStatisticsScreenState extends State<CrimeStatisticsScreen> {
                     DropdownButtonFormField<String>(
                       value: selectedCrimeType,
                       decoration: _inputDecoration("Select Crime Type", Icons.filter_list),
+                      iconSize: 18,
                       items: crimeTypes.map((type) {
                         return DropdownMenuItem(
                           value: type,
                           child: Text(
                             type,
-                            style: TextStyle(color: Color(0xFF2A489E)), // Make text blue
+                            style: const TextStyle(color: Color(0xFF2A489E), fontSize: 14),
                           ),
                         );
                       }).toList(),
@@ -135,34 +132,8 @@ class _CrimeStatisticsScreenState extends State<CrimeStatisticsScreen> {
                           fetchCrimeData();
                         });
                       },
-                      style: TextStyle(color: Colors.blue), // Ensures selected value is blue
                     ),
 
-                    const SizedBox(height: 10),
-
-                    /// **Date Picker**
-                    ElevatedButton.icon(
-                      icon: const Icon(Icons.date_range),
-                      label: Text(
-                        selectedDate == null
-                            ? "Select Date"
-                            : "${selectedDate!.day}-${selectedDate!.month}-${selectedDate!.year}",
-                      ),
-                      onPressed: () async {
-                        DateTime? pickedDate = await showDatePicker(
-                          context: context,
-                          initialDate: DateTime.now(),
-                          firstDate: DateTime(2020),
-                          lastDate: DateTime.now(),
-                        );
-                        if (pickedDate != null) {
-                          setState(() {
-                            selectedDate = pickedDate;
-                            fetchCrimeData();
-                          });
-                        }
-                      },
-                    ),
                     const SizedBox(height: 20),
 
                     /// **Pie Chart**
@@ -171,6 +142,7 @@ class _CrimeStatisticsScreenState extends State<CrimeStatisticsScreen> {
                       openCases: openCases,
                       resolvedCases: resolvedCases,
                       pendingCases: pendingCases,
+                      closedCases: closedCases,
                     ),
 
                     const SizedBox(height: 10),
@@ -182,14 +154,11 @@ class _CrimeStatisticsScreenState extends State<CrimeStatisticsScreen> {
                         crossAxisSpacing: 10,
                         mainAxisSpacing: 10,
                         children: [
-                          _buildStatCard(
-                              "Total Cases", totalCases, Colors.blue),
-                          _buildStatCard(
-                              "Open Cases", openCases, Colors.orange),
-                          _buildStatCard(
-                              "Resolved Cases", resolvedCases, Colors.green),
-                          _buildStatCard(
-                              "Pending Cases", pendingCases, Colors.red),
+                          _buildStatCard("Total Cases", totalCases, Colors.blue),
+                          _buildStatCard("Open Cases", openCases, Colors.orange),
+                          _buildStatCard("Resolved Cases", resolvedCases, Colors.green),
+                          _buildStatCard("Pending Cases", pendingCases, Colors.yellow),
+                          _buildStatCard("Closed Cases", closedCases, Colors.red),
                         ],
                       ),
                     ),
@@ -203,7 +172,6 @@ class _CrimeStatisticsScreenState extends State<CrimeStatisticsScreen> {
     );
   }
 
-  /// **📌 UI Helper for Input Fields**
   InputDecoration _inputDecoration(String label, IconData icon) {
     return InputDecoration(
       labelText: label,
@@ -212,7 +180,6 @@ class _CrimeStatisticsScreenState extends State<CrimeStatisticsScreen> {
     );
   }
 
-  /// **📌 Crime Statistics Card**
   Widget _buildStatCard(String title, int value, Color color) {
     return Card(
       elevation: 3,
@@ -220,13 +187,10 @@ class _CrimeStatisticsScreenState extends State<CrimeStatisticsScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(title,
-              style:
-                  const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+          Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
           const SizedBox(height: 5),
           Text(value.toString(),
-              style: TextStyle(
-                  fontSize: 18, fontWeight: FontWeight.bold, color: color)),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: color)),
         ],
       ),
     );
@@ -235,7 +199,7 @@ class _CrimeStatisticsScreenState extends State<CrimeStatisticsScreen> {
 
 /// **📊 Crime Pie Chart**
 class CrimePieChart extends StatelessWidget {
-  final int totalCases, openCases, resolvedCases, pendingCases;
+  final int totalCases, openCases, resolvedCases, pendingCases, closedCases;
 
   const CrimePieChart({
     super.key,
@@ -243,6 +207,7 @@ class CrimePieChart extends StatelessWidget {
     required this.openCases,
     required this.resolvedCases,
     required this.pendingCases,
+    required this.closedCases,
   });
 
   @override
@@ -255,40 +220,20 @@ class CrimePieChart extends StatelessWidget {
             PieChartData(
               sectionsSpace: 2,
               centerSpaceRadius: 40,
-              sections: _generateSections(),
+              sections: [
+                _buildSection("Total", totalCases, Colors.blue),
+                _buildSection("Open", openCases, Colors.orange),
+                _buildSection("Resolved", resolvedCases, Colors.green),
+                _buildSection("Pending", pendingCases, Colors.yellow),
+                _buildSection("Closed", closedCases, Colors.red),
+              ],
             ),
           ),
-        ),
-        const SizedBox(height: 10),
-
-        /// **📌 Legend**
-        Wrap(
-          alignment: WrapAlignment.center,
-          spacing: 10,
-          children: [
-            _buildLegendItem("Total", Colors.blue),
-            _buildLegendItem("Open", Colors.orange),
-            _buildLegendItem("Resolved", Colors.green),
-            _buildLegendItem("Pending", Colors.red),
-          ],
         ),
       ],
     );
   }
 
-  /// **📌 Generate Pie Sections**
-  List<PieChartSectionData> _generateSections() {
-    if (totalCases == 0) return [];
-
-    return [
-      _buildSection("Total", totalCases, Colors.blue),
-      _buildSection("Open", openCases, Colors.orange),
-      _buildSection("Resolved", resolvedCases, Colors.green),
-      _buildSection("Pending", pendingCases, Colors.red),
-    ];
-  }
-
-  /// **📌 Pie Section Helper**
   PieChartSectionData _buildSection(String title, int value, Color color) {
     if (value == 0) return PieChartSectionData();
 
@@ -297,21 +242,7 @@ class CrimePieChart extends StatelessWidget {
       value: value.toDouble(),
       title: "${(value / totalCases * 100).toStringAsFixed(1)}%",
       radius: 50,
-      titleStyle: const TextStyle(
-          fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
-    );
-  }
-
-  /// **📌 Legend Helper**
-  Widget _buildLegendItem(String label, Color color) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(width: 12, height: 12, color: color),
-        const SizedBox(width: 5),
-        Text(label,
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-      ],
+      titleStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
     );
   }
 }

@@ -184,7 +184,7 @@ class _StaffManagmentScreenState extends State<StaffManagmentScreen> {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const Demo()),
+                            MaterialPageRoute(builder: (context) => const AddStaffScreen()),
                           );
                         },
                         icon: const Icon(Icons.add, color: Colors.white),

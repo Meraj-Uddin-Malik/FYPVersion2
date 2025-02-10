@@ -56,7 +56,7 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
   final TextEditingController _dobController = TextEditingController(); // Date of Birth
   final TextEditingController _joiningDateController = TextEditingController(); // Joining Date
   final TextEditingController _emergencyContactController = TextEditingController(); // Emergency Contact
-  final TextEditingController _badgeNoController = TextEditingController(); // Emergency Contact
+  final TextEditingController _badgeNoController = TextEditingController(); // ✅ Badge Number
 
   String? _selectedGender;
   bool _isPasswordVisible = false;
@@ -75,7 +75,7 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
     _dobController.dispose();
     _joiningDateController.dispose();
     _emergencyContactController.dispose();
-    _badgeNoController.dispose();
+    _badgeNoController.dispose(); // ✅ Disposing badge number controller
     super.dispose();
   }
 
@@ -92,7 +92,7 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
     _dobController.clear();
     _joiningDateController.clear();
     _emergencyContactController.clear();
-    _badgeNoController.clear();
+    _badgeNoController.clear(); // ✅ Clearing badge number field
     setState(() {
       _selectedGender = null;
     });
@@ -114,7 +114,7 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
       String dob = _dobController.text.trim();
       String joiningDate = _joiningDateController.text.trim();
       String emergencyContact = _emergencyContactController.text.trim();
-      String badgeno = _badgeNoController.text.trim();
+      String badgeno = _badgeNoController.text.trim(); // ✅ Retrieving badge number
 
       // Firebase Auth SignUp
       UserCredential userCredential =
@@ -138,7 +138,7 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
         'dob': dob,
         'joiningDate': joiningDate,
         'emergencyContact': emergencyContact,
-        'badgeno': badgeno,
+        'badgeno': badgeno, //
       });
 
       // Show success message
@@ -206,7 +206,7 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
                     ),
                   ),
                   TextSpan(
-                    text: 'STAFF',
+                    text: 'Staff',
                     style: TextStyle(
                       color: Color(0xFFE22128),
                       fontSize: 16,
@@ -253,21 +253,22 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
                                   isReadOnly: true,
                                   initialValue: 'POLICE',
                                 ),
-                                _buildTextField(_usernameController, 'Enter staff name', false, Icons.person),
-                                _buildTextField(_emailController, 'Enter staff email', false, Icons.email),
-                                _buildTextField(_cnicController, 'Enter staff CNIC', false, Icons.credit_card),
-                                _buildTextField(_phoneController, 'Enter staff phone', false, Icons.phone),
+                                _buildTextField(_usernameController, 'Enter Staff Name', false, Icons.person),
+                                _buildTextField(_emailController, 'Enter Staff Email', false, Icons.email),
+                                _buildTextField(_cnicController, 'Enter Staff CNIC', false, Icons.credit_card),
+                                _buildTextField(_phoneController, 'Enter Staff Phone', false, Icons.phone),
                                 _buildGenderDropdown(),
                                 _buildTextField(_rankController, 'Enter Rank/Designation', false, Icons.badge), // New
                                 _buildTextField(_stationController, 'Enter Police Station Name', false, Icons.location_city), // New
                                 _buildTextField(_addressController, 'Enter Address', false, Icons.home), // New
                                 _buildDatePicker(_dobController, 'Select Date of Birth', Icons.calendar_today), // New
                                SizedBox(height: 10,),
+                                 _buildDatePicker(_joiningDateController, 'Select Joining Date', Icons.calendar_today), // New
+                                SizedBox(height: 10,),
                                 _buildTextField(_badgeNoController, 'Badge No', false, Icons.badge), // New
-                                _buildDatePicker(_joiningDateController, 'Select Joining Date', Icons.calendar_today), // New
                                 _buildTextField(_emergencyContactController, 'Enter Emergency Contact', false, Icons.phone_in_talk), // New
-                                _buildTextField(_passwordController, 'Enter staff password', true, Icons.lock),
-                                _buildTextField(_confirmPasswordController, 'Confirm staff password', true, Icons.lock),
+                                _buildTextField(_passwordController, 'Enter Staff Password', true, Icons.lock),
+                                _buildTextField(_confirmPasswordController, 'Confirm Staff Password', true, Icons.lock),
                                 SizedBox(
                                   width: 220.0,
                                   child: ElevatedButton(
@@ -329,12 +330,12 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
         keyboardType: labelText.contains('phone') || labelText.contains('CNIC')
             ? TextInputType.number
             : TextInputType.text,
-        inputFormatters: labelText == 'Enter staff phone'
+        inputFormatters: labelText == 'Enter Staff phone'
             ? [
           FilteringTextInputFormatter.digitsOnly, // Allows only digits
           LengthLimitingTextInputFormatter(11), // Limits input to 11 digits
         ]
-            : labelText == 'Enter staff CNIC'
+            : labelText == 'Enter Staff CNIC'
             ? [
           FilteringTextInputFormatter.digitsOnly,
           LengthLimitingTextInputFormatter(13), // CNIC Limit
@@ -389,8 +390,8 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
               size: 19.5,
             ),
           ),
-          suffixIcon: (labelText == 'Enter staff password' ||
-              labelText == 'Confirm staff password')
+          suffixIcon: (labelText == 'Enter Staff password' ||
+              labelText == 'Confirm Staff password')
               ? IconButton(
             icon: Icon(
               _isPasswordVisible
@@ -423,27 +424,27 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
           if (value == null || value.isEmpty) {
             return 'This field cannot be empty';
           }
-          if (labelText == 'Enter staff email' &&
+          if (labelText == 'Enter Staff email' &&
               !RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
                   .hasMatch(value)) {
             return 'Invalid email address';
           }
-          if (labelText == 'Enter staff phone' &&
+          if (labelText == 'Enter Staff phone' &&
               (value.length != 11 || !RegExp(r'^\d{11}$').hasMatch(value))) {
             return 'Invalid 11-digit phone number';
           }
-          if (labelText == 'Enter staff CNIC' &&
+          if (labelText == 'Enter Staff CNIC' &&
               !RegExp(r"^\d{5}-\d{7}-\d$").hasMatch(value)) {
             return 'Invalid CNIC format (e.g., 00000-0000000-0)';
           }
-          if (labelText == 'Enter staff password') {
+          if (labelText == 'Enter Staff password') {
             if (!RegExp(
                 r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$')
                 .hasMatch(value)) {
               return 'Password must have:\n• At least 8 characters\n• 1 uppercase\n• 1 lowercase\n• 1 number\n• 1 special character';
             }
           }
-          if (labelText == 'Confirm staff password' &&
+          if (labelText == 'Confirm Staff password' &&
               value != _passwordController.text) {
             return 'Passwords do not match';
           }
@@ -508,7 +509,7 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
               .toList(),
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return 'Please select staff gender';
+              return 'Please select Staff gender';
             }
             return null;
           }),
@@ -519,18 +520,27 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
     return TextFormField(
       controller: controller,
       readOnly: true,
-      // decoration: InputDecoration(
-      //   labelText: label,
-      //   prefixIcon: Icon(icon),
-      // ),
       decoration: InputDecoration(
         labelText: label,
-        prefixIcon: Icon(icon),
-        // labelStyle: TextStyle(
-        //     fontSize: 14.0,
-        //     color: Color(0xFF203982),
-        //     fontWeight: FontWeight.w400 // Blue label color
-        // ),
+        prefixIcon: ShaderMask(
+          shaderCallback: (Rect bounds) {
+            return const LinearGradient(
+              colors: [Color(0xFF203982), Colors.red],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ).createShader(bounds);
+          },
+          child: Icon(
+            icon,
+            color: Colors.red.shade100,
+            size: 19.5,
+          ),
+        ),
+        labelStyle: TextStyle(
+            fontSize: 14.0,
+            color: Color(0xFF203982),
+            fontWeight: FontWeight.w400 // Blue label color
+        ),
         border: OutlineInputBorder(
           borderSide: BorderSide(
             color: Color(0xFF203982), // Blue border color

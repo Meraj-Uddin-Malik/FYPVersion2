@@ -13,7 +13,9 @@ class PreFIRViewScreen extends StatefulWidget {
 class _PreFIRViewScreenState extends State<PreFIRViewScreen> {
   @override
   Widget build(BuildContext context) {
+    // print("FIR Data: ${widget.firData}");
     return Scaffold(
+
       backgroundColor: const Color(0xFF2A489E),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -21,18 +23,46 @@ class _PreFIRViewScreenState extends State<PreFIRViewScreen> {
             children: [
               const SizedBox(height: 10),
               const CircleAvatar(
-                radius: 65.0,
+                radius: 55.0,
                 backgroundImage: AssetImage('images/Police.png'),
               ),
               const SizedBox(height: 10),
-              Text('Pre FIR View', style: _textStyle(18.0, Colors.white)),
+              const Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(
+                      text: 'PRE FIR ',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontFamily: 'Barlow',
+                        fontWeight: FontWeight.w700,
+                        height: 0,
+                        letterSpacing: 3.36,
+                      ),
+                    ),
+                    TextSpan(
+                      text: 'DETAIL VIEW',
+                      style: TextStyle(
+                        color: Color(0xFFE22128),
+                        fontSize: 16,
+                        fontFamily: 'Barlow',
+                        fontWeight: FontWeight.w700,
+                        height: 0,
+                        letterSpacing: 3.36,
+                      ),
+                    ),
+                  ],
+                ),
+                textAlign: TextAlign.center,
+              ),
               const SizedBox(height: 20),
               Container(
                 decoration: const BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(50),
-                    topRight: Radius.circular(50),
+                    topLeft: Radius.circular(30),
+                    topRight: Radius.circular(30),
                   ),
                 ),
                 padding: const EdgeInsets.all(20.0),
@@ -80,6 +110,17 @@ class _PreFIRViewScreenState extends State<PreFIRViewScreen> {
                       {'label': 'Name', 'value': widget.firData['witness_name']},
                       {'label': 'Contact', 'value': widget.firData['witness_contact']},
                     ]),
+
+                    // Assigned Officer Details
+                    _buildSectionHeader('Assigned Officer Details'),
+                    _buildDataTable([
+                      {'label': 'Name', 'value': widget.firData['assigned_officer']?['name'] ?? 'Not Assigned'},
+                      {'label': 'Badge ID', 'value': widget.firData['assigned_officer']?['badge_number'] ?? 'N/A'},
+                      {'label': 'Rank', 'value': widget.firData['assigned_officer']?['rank'] ?? 'N/A'},
+                    ]),
+
+
+
 
 
                     // FIR Status with Dynamic Color
@@ -279,12 +320,4 @@ class _PreFIRViewScreenState extends State<PreFIRViewScreen> {
     }
   }
 
-  TextStyle _textStyle(double fontSize, Color color) {
-    return TextStyle(
-      fontFamily: 'Barlow',
-      fontSize: fontSize,
-      fontWeight: FontWeight.bold,
-      color: color,
-    );
-  }
 }

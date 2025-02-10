@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fyp_v2/Admin_Module/firdemo.dart';
 import 'package:fyp_v2/Admin_Module/prefir_details_screen.dart';
 
 class PrefirManagmentScreen extends StatefulWidget {
@@ -155,7 +154,7 @@ class _PrefirManagmentScreenState extends State<PrefirManagmentScreen> {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => Firdemo(
+                                        builder: (context) => PrefirDetailsScreen(
                                           firId: fir.id, // Pass Firestore Document ID
                                           firData: data,
                                           isAdmin: true, // Set based on user role

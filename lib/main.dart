@@ -28,20 +28,20 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const AddStaffScreen(),
-      // initialRoute: '/',  // Initial route set to SplashScreen
-      // routes: {
-      //   '/': (context) => const Splashscreen(),
-      //   '/welcome_screen': (context) => const WelcomeScreen(),
-      //   '/login_screen': (context) => const LoginScreen(),
-      //   '/signup_screen': (context) => const SignUpScreen(),
-      //   '/main_screen': (context) =>  const MainScreen(),
-      //   '/admin_main_screen': (context) =>  const AdminMainScreen(),
-      //   '/forgotpass_screen': (context) =>  const ForgotPasswordScreen(),
-      //   '/fir_tracking_screen': (context) =>  const PreFIRTrackingScreen(),
-      //   '/fir_view_screen': (context) =>  const PreFIRTrackingScreen(),
-      //   '/soss_screen': (context) =>  const SossScreen(),
-      // },
+      // home: const MainScreen(),
+      initialRoute: '/',  // Initial route set to SplashScreen
+      routes: {
+        '/': (context) => const Splashscreen(),
+        '/welcome_screen': (context) => const WelcomeScreen(),
+        '/login_screen': (context) => const LoginScreen(),
+        '/signup_screen': (context) => const SignUpScreen(),
+        '/main_screen': (context) =>  const MainScreen(),
+        '/admin_main_screen': (context) =>  const AdminMainScreen(),
+        '/forgotpass_screen': (context) =>  const ForgotPasswordScreen(),
+        '/fir_tracking_screen': (context) =>  const PreFIRTrackingScreen(),
+        '/fir_view_screen': (context) =>  const PreFIRTrackingScreen(),
+        '/soss_screen': (context) =>  const SossScreen(),
+      },
     );
   }
 }

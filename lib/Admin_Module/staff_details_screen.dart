@@ -24,6 +24,19 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen> {
     TextEditingController(text: widget.user['email'] ?? '');
     TextEditingController phoneController =
     TextEditingController(text: widget.user['phone'] ?? '');
+    TextEditingController rankController =
+    TextEditingController(text: widget.user['rank'] ?? '');
+    TextEditingController stationController =
+    TextEditingController(text: widget.user['station'] ?? '');
+    TextEditingController dobController =
+    TextEditingController(text: widget.user['dob'] ?? '');
+    TextEditingController joiningDateController =
+    TextEditingController(text: widget.user['joiningDate'] ?? '');
+    TextEditingController badgeNoController =
+    TextEditingController(text: widget.user['badgeno'] ?? '');
+    TextEditingController emergencyContactController =
+    TextEditingController(text: widget.user['emergencyContact'] ?? '');
+
     String selectedGender = widget.user['gender'] ?? 'Male'; // Default Gender
 
     showDialog(
@@ -32,31 +45,52 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text("Update User Details"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildTextField("Username", usernameController, false),
-              _buildTextField("Email", emailController, false),
-              _buildTextField("Phone", phoneController, false),
-
-              // Gender Dropdown
-              DropdownButtonFormField<String>(
-                value: selectedGender,
-                decoration: const InputDecoration(
-                  labelText: "Gender",
-                  border: OutlineInputBorder(),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // CNIC (Disabled)
+                TextField(
+                  controller: TextEditingController(text: widget.user['cnic'] ?? 'N/A'),
+                  decoration: const InputDecoration(
+                    labelText: "CNIC",
+                    border: OutlineInputBorder(),
+                  ),
+                  enabled: false,
                 ),
-                items: ["Male", "Female", "Other"].map((String gender) {
-                  return DropdownMenuItem(
-                    value: gender,
-                    child: Text(gender),
-                  );
-                }).toList(),
-                onChanged: (newValue) {
-                  selectedGender = newValue!;
-                },
-              ),
-            ],
+                const SizedBox(height: 10),
+
+                _buildTextField("Username", usernameController, false),
+                _buildTextField("Email", emailController, false),
+                _buildTextField("Phone", phoneController, false),
+
+                // Gender Dropdown
+                DropdownButtonFormField<String>(
+                  value: selectedGender,
+                  decoration: const InputDecoration(
+                    labelText: "Gender",
+                    border: OutlineInputBorder(),
+                  ),
+                  items: ["Male", "Female", "Other"].map((String gender) {
+                    return DropdownMenuItem(
+                      value: gender,
+                      child: Text(gender),
+                    );
+                  }).toList(),
+                  onChanged: (newValue) {
+                    selectedGender = newValue!;
+                  },
+                ),
+                const SizedBox(height: 10),
+
+                _buildTextField("Rank", rankController, false),
+                _buildTextField("Police Station Name", stationController, false),
+                _buildTextField("Date of Birth", dobController, false),
+                _buildTextField("Date of Joining", joiningDateController, false),
+                _buildTextField("Badge Number", badgeNoController, false),
+                _buildTextField("Emergency Contact", emergencyContactController, false),
+              ],
+            ),
           ),
           actions: [
             TextButton(
@@ -74,6 +108,12 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen> {
                     'email': emailController.text,
                     'phone': phoneController.text,
                     'gender': selectedGender,
+                    'rank': rankController.text,
+                    'station': stationController.text,
+                    'dob': dobController.text,
+                    'joiningDate': joiningDateController.text,
+                    'badgeno': badgeNoController.text,
+                    'emergencyContact': emergencyContactController.text,
                   });
 
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -95,6 +135,7 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen> {
       },
     );
   }
+
 
   // Function to delete user
   void deleteUser() async {
@@ -262,12 +303,25 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen> {
                           // User Details Cards
                           _buildDetailCard(Icons.credit_card, "CNIC",
                               widget.user['cnic'] ?? 'N/A'),
-                          _buildDetailCard(Icons.mail, "Email",
+                          _buildDetailCard(Icons.email, "Email",
                               widget.user['email'] ?? 'N/A'),
                           _buildDetailCard(Icons.phone, "Phone",
                               widget.user['phone'] ?? 'N/A'),
                           _buildDetailCard(Icons.male, "Gender",
                               widget.user['gender'] ?? 'N/A'),
+                          _buildDetailCard(Icons.star, "Rank",
+                              widget.user['rank'] ?? 'N/A'),
+                          _buildDetailCard(Icons.account_balance, "Police Station Name",
+                              widget.user['station'] ?? 'N/A'),
+                          _buildDetailCard(Icons.cake, "Date Of Birth",
+                              widget.user['dob'] ?? 'N/A'),
+                          _buildDetailCard(Icons.date_range, "Date Of Joining",
+                              widget.user['joiningDate'] ?? 'N/A'),
+                          _buildDetailCard(Icons.badge, "Badge Number",
+                              widget.user['badgeno'] ?? 'N/A'),
+                          const SizedBox(height: 20),
+                          _buildDetailCard(Icons.contact_phone, "Emergency Contact",
+                              widget.user['emergencyContact'] ?? 'N/A'),
                           const SizedBox(height: 20),
 
                           // Restrict & Unrestrict Buttons
