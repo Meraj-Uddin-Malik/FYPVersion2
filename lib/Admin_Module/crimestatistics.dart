@@ -135,7 +135,6 @@ class _CrimeStatisticsScreenState extends State<CrimeStatisticsScreen> {
                     ),
 
                     const SizedBox(height: 20),
-
                     /// **Pie Chart**
                     CrimePieChart(
                       totalCases: totalCases,
@@ -144,9 +143,7 @@ class _CrimeStatisticsScreenState extends State<CrimeStatisticsScreen> {
                       pendingCases: pendingCases,
                       closedCases: closedCases,
                     ),
-
                     const SizedBox(height: 10),
-
                     /// **Statistics Grid**
                     Expanded(
                       child: GridView.count(

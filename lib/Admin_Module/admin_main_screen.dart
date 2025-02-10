@@ -1,6 +1,7 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fyp_v2/Admin_Module/crimestatistics.dart';
+import 'package:fyp_v2/Admin_Module/missingfoundproperty_screen.dart';
 import 'package:fyp_v2/Admin_Module/prefir_managment_screen.dart';
 import 'package:fyp_v2/Admin_Module/redzone_screen.dart';
 import 'package:fyp_v2/Admin_Module/staff_managment_screen.dart';
@@ -576,10 +577,17 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                                   ],
                                 ),
                                 child: Center(
-                                  child: Icon(
-                                    Icons.manage_accounts, // User Management Icon
-                                    size: 30, // Adjusted size for better visibility
-                                    color: Color(0xFF2A489E), // Matching text color
+                                  child: ShaderMask(
+                                    shaderCallback: (bounds) => LinearGradient(
+                                     colors: [Colors.red, Color(0x802A489E)], // Gradient colors
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ).createShader(bounds),
+                                    child: const Icon(
+                                      Icons.manage_accounts, // User Management Icon
+                                      size: 30, // Adjusted size for better visibility
+                                      color: Colors.white, // This must be white for ShaderMask to work
+                                    ),
                                   ),
                                 ),
                               ),
@@ -630,10 +638,17 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                                   ],
                                 ),
                                 child: Center(
-                                  child: Icon(
-                                    Icons.group, // User Management Icon
-                                    size: 30, // Adjusted size for better visibility
-                                    color: Color(0xFF2A489E), // Matching text color
+                                  child: ShaderMask(
+                                    shaderCallback: (bounds) => LinearGradient(
+                                     colors: [Colors.red, Color(0x802A489E)], // Gradient colors
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ).createShader(bounds),
+                                    child: const Icon(
+                                      Icons.group, // User Management Icon
+                                      size: 30, // Adjusted size for better visibility
+                                      color: Colors.white, // This must be white for ShaderMask to work
+                                    ),
                                   ),
                                 ),
                               ),
@@ -743,11 +758,18 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                                   ],
                                 ),
                                 child: Center(
-                                  child: Icon(
-                                    Icons.bar_chart, // User Management Icon
-                                    size: 30, // Adjusted size for better visibility
-                                    color: Color(0xFF2A489E), // Matching text color
-                                  ),
+                                    child: ShaderMask(
+                                      shaderCallback: (bounds) => LinearGradient(
+                                       colors: [Colors.red, Color(0x802A489E)], // Gradient colors
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ).createShader(bounds),
+                                      child: const Icon(
+                                        Icons.bar_chart, // User Management Icon
+                                        size: 30, // Adjusted size for better visibility
+                                        color: Colors.white, // This must be white for ShaderMask to work
+                                      ),
+                                    ),
                                 ),
                               ),
                             ),
@@ -781,7 +803,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) =>
-                                      const CrimeReportScreen()),
+                                      const MissingfoundpropertyScreen()),
                                 );
                               },
                               child: Container(
@@ -807,10 +829,17 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                                   ],
                                 ),
                                 child: Center(
-                                  child: Image.asset(
-                                    'icons/5.png', // Example image path, replace with your actual image path
-                                    width: 28,
-                                    height: 28,
+                                  child: ShaderMask(
+                                    shaderCallback: (bounds) => LinearGradient(
+                                      colors: [Colors.red, Color(0x802A489E)], // Gradient colors
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ).createShader(bounds),
+                                    child: const Icon(
+                                      Icons.inventory, // User Management Icon
+                                      size: 30, // Adjusted size for better visibility
+                                      color: Colors.white, // This must be white for ShaderMask to work
+                                    ),
                                   ),
                                 ),
                               ),
