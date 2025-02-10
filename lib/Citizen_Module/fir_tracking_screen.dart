@@ -37,7 +37,35 @@ class _PreFIRTrackingScreenState extends State<PreFIRTrackingScreen> {
               backgroundImage: AssetImage('images/Police.png'),
             ),
             const SizedBox(height: 10),
-            Text('PRE FIR TRACKING', style: _textStyle(18.0, Colors.white)),
+            const Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
+                    text: 'PRE FIR ',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontFamily: 'Barlow',
+                      fontWeight: FontWeight.w700,
+                      height: 0,
+                      letterSpacing: 3.36,
+                    ),
+                  ),
+                  TextSpan(
+                    text: 'TRACKING',
+                    style: TextStyle(
+                      color: Color(0xFFE22128),
+                      fontSize: 16,
+                      fontFamily: 'Barlow',
+                      fontWeight: FontWeight.w700,
+                      height: 0,
+                      letterSpacing: 3.36,
+                    ),
+                  ),
+                ],
+              ),
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(height: 20),
             Expanded(
               child: Container(
@@ -281,11 +309,4 @@ class _PreFIRTrackingScreenState extends State<PreFIRTrackingScreen> {
     }
   }
 
-  TextStyle _textStyle(double fontSize, Color color) {
-    return TextStyle(
-        fontFamily: 'Barlow',
-        fontSize: fontSize,
-        fontWeight: FontWeight.bold,
-        color: color);
-  }
 }

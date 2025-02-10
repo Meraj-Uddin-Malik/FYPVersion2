@@ -1,19 +1,15 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:fyp_v2/Admin_Module/add_staff_screen.dart';
 import 'package:fyp_v2/Admin_Module/admin_main_screen.dart';
 import 'package:fyp_v2/Admin_Module/prefir_managment_screen.dart';
-import 'package:fyp_v2/Citizen_Module/complaint_agianst_police_screen.dart';
-import 'package:fyp_v2/Citizen_Module/fir_tracking_screen.dart';
-import 'package:fyp_v2/Citizen_Module/forgotpass_screen.dart';
-import 'package:fyp_v2/Citizen_Module/missingfoundreport_screen.dart';
-import 'package:fyp_v2/Citizen_Module/profile_screen.dart';
-import 'package:fyp_v2/Citizen_Module/saftytips_screen.dart';
-import 'package:fyp_v2/Citizen_Module/services_screen.dart';
-import 'package:fyp_v2/Citizen_Module/settings_screen.dart';
-import 'package:fyp_v2/Citizen_Module/soss_screen.dart';
+import 'package:fyp_v2/Admin_Module/staff_managment_screen.dart';
+import 'Citizen_Module/fir_tracking_screen.dart';
+import 'Citizen_Module/forgotpass_screen.dart';
 import 'Citizen_Module/login_screen.dart';
 import 'Citizen_Module/main_screen.dart';
 import 'Citizen_Module/signup_screen.dart';
+import 'Citizen_Module/soss_screen.dart';
 import 'Citizen_Module/splash_screen.dart';
 import 'Citizen_Module/welcome_screen.dart';
 
@@ -32,7 +28,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: AdminMainScreen(),
+      home: const AddStaffScreen(),
       // initialRoute: '/',  // Initial route set to SplashScreen
       // routes: {
       //   '/': (context) => const Splashscreen(),
@@ -40,6 +36,7 @@ class MyApp extends StatelessWidget {
       //   '/login_screen': (context) => const LoginScreen(),
       //   '/signup_screen': (context) => const SignUpScreen(),
       //   '/main_screen': (context) =>  const MainScreen(),
+      //   '/admin_main_screen': (context) =>  const AdminMainScreen(),
       //   '/forgotpass_screen': (context) =>  const ForgotPasswordScreen(),
       //   '/fir_tracking_screen': (context) =>  const PreFIRTrackingScreen(),
       //   '/fir_view_screen': (context) =>  const PreFIRTrackingScreen(),

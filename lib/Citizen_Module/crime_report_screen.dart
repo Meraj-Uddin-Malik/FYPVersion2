@@ -61,6 +61,7 @@ class _CrimeReportScreenState extends State<CrimeReportScreen> {
   String? _selectedRelationShip;
   String? _selectedGender;
   File? selectedFile;
+
   String? fileUrl;
 
   String? userId = FirebaseAuth.instance.currentUser?.uid;
@@ -124,32 +125,70 @@ class _CrimeReportScreenState extends State<CrimeReportScreen> {
               FirebaseFirestore.instance.collection('pre_fir');
 
               // Add form data to Firestore with userId
+              // await preFIRCollection.add({
+              //   'complainant_name': fullNameController.text,
+              //   'email': emailController.text,
+              //   'cnic': cnicController.text,
+              //   'contact': phoneController.text,
+              //   'incident_subject': subjectController.text,
+              //   'incident_date': incidentDateController.text,
+              //   'reporting_date': incidentReportDateController.text,
+              //   'incident_location': incidentLocationController.text,
+              //   'incident_detail': reportIncidentController.text,
+              //   'victim_name': victimNameController.text,
+              //   'victim_cnic': victimCnicController.text,
+              //   'victim_address': victimAddressController.text,
+              //   'victim_contact': victimContactController.text,
+              //   'victim_gender': _selectedGender,
+              //   'suspect_name': suspectNameController.text,
+              //   'suspect_address': suspectAddressController.text,
+              //   'suspect_description': suspectDetailController.text,
+              //   'witness_name': witnessNameController.text,
+              //   'witness_contact': witnessContactController.text,
+              //   'file_url': fileUrl,
+              //   'status': 'New',
+              //   'timestamp': FieldValue.serverTimestamp(),
+              //   'complainant_gender': _selectedGender,
+              //   'userId': userId, // ✅ Attach UID
+              // });
               await preFIRCollection.add({
                 'complainant_name': fullNameController.text,
                 'email': emailController.text,
                 'cnic': cnicController.text,
                 'contact': phoneController.text,
+                'complainant_gender': _selectedGender, // ✅ Complainant Gender
+                'relationship': _selectedRelationShip, // ✅ Relationship to Victim
+
+                'incident_type': _selectedIncidentType, // ✅ Incident Type
                 'incident_subject': subjectController.text,
                 'incident_date': incidentDateController.text,
                 'reporting_date': incidentReportDateController.text,
                 'incident_location': incidentLocationController.text,
                 'incident_detail': reportIncidentController.text,
+                'district': _selectedDistrict, // ✅ District
+                'tehsil': _selectedTeshsil, // ✅ Tehsil
+                'urgency': _selectedUrgency, // ✅ Urgency Level
+
                 'victim_name': victimNameController.text,
                 'victim_cnic': victimCnicController.text,
                 'victim_address': victimAddressController.text,
                 'victim_contact': victimContactController.text,
-                'victim_gender': _selectedGender,
+                // 'victim_gender': _selectedVictimGender, // ✅ Victim Gender (Use separate variable)
+                'victim_health': _selectedVictimHealth, // ✅ Victim Health Condition
+
                 'suspect_name': suspectNameController.text,
                 'suspect_address': suspectAddressController.text,
                 'suspect_description': suspectDetailController.text,
+
                 'witness_name': witnessNameController.text,
                 'witness_contact': witnessContactController.text,
+
                 'file_url': fileUrl,
                 'status': 'New',
                 'timestamp': FieldValue.serverTimestamp(),
-                'complainant_gender': _selectedGender,
                 'userId': userId, // ✅ Attach UID
               });
+
 
               // Show success message
               ArtSweetAlert.show(
@@ -186,90 +225,6 @@ class _CrimeReportScreenState extends State<CrimeReportScreen> {
     }
   }
 
-
-  // void submitForm() async {
-  //   if (_formKey.currentState!.validate()) {
-  //     ArtSweetAlert.show(
-  //       context: context,
-  //       artDialogArgs: ArtDialogArgs(
-  //         type: ArtSweetAlertType.info, // Info type for confirmation dialog
-  //         title: "Confirm Submission",
-  //         text: "Are you sure you want to submit the form?",
-  //         confirmButtonText: "Submit",
-  //         cancelButtonText: "Cancel",
-  //         onConfirm: () async {
-  //           Navigator.of(context).pop(); // Close the SweetAlert dialog
-  //
-  //           try {
-  //             if (selectedFile != null) {
-  //               // Upload the selected file
-  //               await uploadFile(selectedFile!);
-  //             }
-  //
-  //             // Reference to Firestore collection
-  //             CollectionReference preFIRCollection = FirebaseFirestore.instance.collection('pre_fir');
-  //
-  //             // Add form data to Firestore with default status "New"
-  //             await preFIRCollection.add({
-  //               'complainant_name': fullNameController.text,
-  //               'email': emailController.text,
-  //               'cnic': cnicController.text,
-  //               'contact': phoneController.text,
-  //               'incident_subject': subjectController.text,
-  //               'incident_date': incidentDateController.text,
-  //               'reporting_date': incidentReportDateController.text,
-  //               'incident_location': incidentLocationController.text,
-  //               'incident_detail': reportIncidentController.text,
-  //               'victim_name': victimNameController.text,
-  //               'victim_cnic': victimCnicController.text,
-  //               'victim_address': victimAddressController.text,
-  //               'victim_contact': victimContactController.text,
-  //               'victim_gender': _selectedGender, // Use gender for victim gender
-  //               'suspect_name': suspectNameController.text,
-  //               'suspect_address': suspectAddressController.text,
-  //               'suspect_description': suspectDetailController.text,
-  //               'witness_name': witnessNameController.text,
-  //               'witness_contact': witnessContactController.text,
-  //               'file_url': fileUrl, // Store file URL from Firebase Storage
-  //               'status': 'New', // Default status as "New"
-  //               'timestamp': FieldValue.serverTimestamp(), // Server timestamp
-  //               'complainant_gender': _selectedGender, // Use gender for complainant gender
-  //             });
-  //
-  //             // Show success message
-  //             ArtSweetAlert.show(
-  //               context: context,
-  //               artDialogArgs: ArtDialogArgs(
-  //                 type: ArtSweetAlertType.success, // Success type
-  //                 title: "Success",
-  //                 text: "FIR Submitted Successfully!",
-  //                 confirmButtonText: "OK",
-  //               ),
-  //             );
-  //
-  //             // Reset form and fields
-  //             _formKey.currentState?.reset(); // Reset the form
-  //             clearControllers();
-  //           } catch (e) {
-  //             // Show error message
-  //             ArtSweetAlert.show(
-  //               context: context,
-  //               artDialogArgs: ArtDialogArgs(
-  //                 type: ArtSweetAlertType.warning, // Warning type (since error is not available)
-  //                 title: "Error",
-  //                 text: "Error submitting form: $e",
-  //                 confirmButtonText: "OK",
-  //               ),
-  //             );
-  //           }
-  //         },
-  //         onCancel: () {
-  //           Navigator.of(context).pop(); // Close the SweetAlert dialog on cancel
-  //         },
-  //       ),
-  //     );
-  //   }
-  // }
 
   void clearControllers() {
     fullNameController.clear();
@@ -396,38 +351,6 @@ class _CrimeReportScreenState extends State<CrimeReportScreen> {
     ));
     return Scaffold(
       backgroundColor: const Color(0xFF2A489E),
-      // bottomNavigationBar: CurvedNavigationBar(
-      //   backgroundColor: Colors.white,
-      //   color: const Color(0xFF2A489E),
-      //   animationDuration: const Duration(milliseconds: 300),
-      //   items: const [
-      //     Icon(
-      //       Icons.home,
-      //       color: Colors.white,
-      //       size: 30,
-      //     ),
-      //     Icon(
-      //       Icons.miscellaneous_services,
-      //       color: Colors.white,
-      //       size: 30,
-      //     ),
-      //     Icon(
-      //       Icons.sos,
-      //       color: Colors.white,
-      //       size: 30,
-      //     ),
-      //     Icon(
-      //       Icons.settings,
-      //       color: Colors.white,
-      //       size: 30,
-      //     ),
-      //     Icon(
-      //       Icons.account_circle_sharp,
-      //       color: Colors.white,
-      //       size: 30,
-      //     ),
-      //   ],
-      // ),
       body: SafeArea(
         child: Center(
           child: Column(

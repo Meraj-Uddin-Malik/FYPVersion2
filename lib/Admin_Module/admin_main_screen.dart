@@ -1,5 +1,10 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fyp_v2/Admin_Module/crimestatistics.dart';
+import 'package:fyp_v2/Admin_Module/prefir_managment_screen.dart';
+import 'package:fyp_v2/Admin_Module/redzone_screen.dart';
+import 'package:fyp_v2/Admin_Module/staff_managment_screen.dart';
+import 'package:fyp_v2/Admin_Module/users_management_screen.dart';
 import 'package:fyp_v2/Citizen_Module/profile_screen.dart';
 import 'package:fyp_v2/Citizen_Module/services_screen.dart';
 import 'package:fyp_v2/Citizen_Module/settings_screen.dart';
@@ -8,13 +13,9 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
-import '../Citizen_Module/complaint_agianst_police_screen.dart';
 import '../Citizen_Module/crime_report_screen.dart';
 import '../Citizen_Module/fir_tracking_screen.dart';
-import '../Citizen_Module/igpwebscreenview.dart';
 import '../Citizen_Module/jobwebcreenview.dart';
 import '../Citizen_Module/login_screen.dart';
 
@@ -52,8 +53,8 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
   void initState() {
     super.initState();
     _getUserInfo();
+    _fetchTotalPreFIRs();
   }
-
   Future<void> _getUserInfo() async {
     User? user = FirebaseAuth.instance.currentUser; // Get logged-in user
 
@@ -78,6 +79,24 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
     Icon(Icons.person, size: 30),
   ];
 
+  int totalFIRs = 0;
+// Function to fetch total Pre-FIR count
+  Future<void> _fetchTotalPreFIRs() async {
+    try {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('pre_fir') // Ensure the correct collection name
+          .get();
+
+      // Update total FIRs count in state
+      if (mounted) {
+        setState(() {
+          totalFIRs = querySnapshot.size; // Get total number of documents
+        });
+      }
+    } catch (error) {
+      debugPrint("Error fetching FIR count: $error");
+    }
+  }
 
 
 
@@ -134,12 +153,12 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
 // Header Container
               Container(
                 width: 390,
-                height: 449,
+                height: 500,
                 decoration: const BoxDecoration(
                   color: Color(0xFF2A489E),
                   borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(50),
-                    bottomRight: Radius.circular(50),
+                    bottomLeft: Radius.circular(30),
+                    bottomRight: Radius.circular(30),
                   ),
                 ),
                 child: Padding(
@@ -150,7 +169,6 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                       const SizedBox(
                         height: 20.0,
                       ),
-
                       Text(
                         formattedDateTime,
                         textAlign: TextAlign.center,
@@ -163,7 +181,6 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                           letterSpacing: 0.60,
                         ),
                       ),
-
                       const SizedBox(height: 13),
                       Row(
                         children: [
@@ -269,7 +286,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                               CrossAxisAlignment.start,
                               children: [
                                 const Text(
-                                  'CITIZEN',
+                                  'ADMIN',
                                   textAlign: TextAlign.left,
                                   style: TextStyle(
                                     color: Color(0xFFE22128),
@@ -312,26 +329,29 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
 // Evaluate Button
                           Padding(
                             padding: const EdgeInsets.only(right: 20.0),
-                            child: ElevatedButton(
-                              onPressed: makeCall,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(
-                                    0xFFE22128), // Button color
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(
-                                      20), // Rounded corners
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 20, vertical: 10),
-                              ),
-                              child: const Text(
-                                "Madadgar 15",
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontFamily: 'Barlow',
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white,
-                                ),
+                            child: SizedBox(
+                              width: 100, // Adjust size
+                              height: 100,
+                              child: Stack(
+                                fit: StackFit.expand,
+                                children: [
+                                  CircularProgressIndicator(
+                                    value: totalFIRs / 100, // Normalize value (Assume max FIRs = 100)
+                                    backgroundColor: Colors.white38,
+                                    valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFE22128)),
+                                    strokeWidth: 8, // Thickness
+                                  ),
+                                  Center(
+                                    child: Text(
+                                      '$totalFIRs', // Display total FIR count
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w900,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
@@ -340,7 +360,6 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                       const SizedBox(
                         height: 20.0,
                       ),
-
                       Container(
                         width: 390,
                         decoration: BoxDecoration(
@@ -533,8 +552,8 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) =>
-                                      const CrimeReportScreen()),
+                                    builder: (context) => const UsersManagementScreen(),
+                                  ),
                                 );
                               },
                               child: Container(
@@ -544,11 +563,8 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                                 decoration: ShapeDecoration(
                                   color: Colors.white,
                                   shape: RoundedRectangleBorder(
-                                    side: const BorderSide(
-                                        width: 1,
-                                        color: Color(0x802A489E)),
-                                    borderRadius:
-                                    BorderRadius.circular(10),
+                                    side: const BorderSide(width: 1, color: Color(0x802A489E)),
+                                    borderRadius: BorderRadius.circular(10),
                                   ),
                                   shadows: const [
                                     BoxShadow(
@@ -560,23 +576,22 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                                   ],
                                 ),
                                 child: Center(
-                                  child: Image.asset(
-                                    'icons/1.png', // Example image path, replace with your actual image path
-                                    width: 28,
-                                    height: 28,
+                                  child: Icon(
+                                    Icons.manage_accounts, // User Management Icon
+                                    size: 30, // Adjusted size for better visibility
+                                    color: Color(0xFF2A489E), // Matching text color
                                   ),
                                 ),
                               ),
                             ),
                             const Text(
-                              'Pre FIR \n against Crime',
+                              'Users \n Management',
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 color: Color(0xFF2A489E),
                                 fontSize: 11,
                                 fontFamily: 'Barlow',
                                 fontWeight: FontWeight.w400,
-                                height: 0,
                                 letterSpacing: 0.55,
                               ),
                             ),
@@ -591,8 +606,8 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) =>
-                                      const ComplaintAgianstPoliceScreen()),
+                                    builder: (context) => const StaffManagmentScreen(),
+                                  ),
                                 );
                               },
                               child: Container(
@@ -602,39 +617,35 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                                 decoration: ShapeDecoration(
                                   color: Colors.white,
                                   shape: RoundedRectangleBorder(
-                                    side: const BorderSide(
-                                        width: 1,
-                                        color: Color(0x802A489E)),
-                                    borderRadius:
-                                    BorderRadius.circular(10),
+                                    side: const BorderSide(width: 1, color: Color(0x802A489E)),
+                                    borderRadius: BorderRadius.circular(10),
                                   ),
                                   shadows: const [
                                     BoxShadow(
                                       color: Color(0x111F3982),
-                                      blurRadius: 30,
+                                      blurRadius: 60,
                                       offset: Offset(0, 8),
-                                      spreadRadius: 10,
+                                      spreadRadius: 60,
                                     ),
                                   ],
                                 ),
                                 child: Center(
-                                  child: Image.asset(
-                                    'icons/2.png',
-                                    width: 28,
-                                    height: 28,
+                                  child: Icon(
+                                    Icons.group, // User Management Icon
+                                    size: 30, // Adjusted size for better visibility
+                                    color: Color(0xFF2A489E), // Matching text color
                                   ),
                                 ),
                               ),
                             ),
                             const Text(
-                              'Complaint \n against Police',
+                              'Staff \n Management',
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 color: Color(0xFF2A489E),
                                 fontSize: 11,
                                 fontFamily: 'Barlow',
                                 fontWeight: FontWeight.w400,
-                                height: 0,
                                 letterSpacing: 0.55,
                               ),
                             ),
@@ -651,7 +662,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) =>
-                                      const PreFIRTrackingScreen()),
+                                      const PrefirManagmentScreen()),
                                 );
                               },
                               child: Container(
@@ -699,70 +710,60 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                             ),
                           ],
                         ),
-
 // Box 4
                         Column(
-                            mainAxisSize: MainAxisSize.min,
-// for IGP Complaint
-                            children: [
-                              GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                        const IGPWebScreen()),
-                                  );
-                                },
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Container(
-                                      width: 59,
-                                      height: 59,
-                                      margin: const EdgeInsets.all(4),
-                                      decoration: ShapeDecoration(
-                                        color: Colors.white,
-                                        shape: RoundedRectangleBorder(
-                                          side: const BorderSide(
-                                              width: 1,
-                                              color: Color(0x802A489E)),
-                                          borderRadius:
-                                          BorderRadius.circular(10),
-                                        ),
-                                        shadows: const [
-                                          BoxShadow(
-                                            color: Color(0x111F3982),
-                                            blurRadius: 30,
-                                            offset: Offset(0, 8),
-                                            spreadRadius: 10,
-                                          ),
-                                        ],
-                                      ),
-                                      child: Center(
-                                        child: Image.asset(
-                                          'icons/4.png', // Replace with your actual image path
-                                          width: 28,
-                                          height: 28,
-                                        ),
-                                      ),
-                                    ),
-                                    const Text(
-                                      'IGP \n Complaints',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        color: Color(0xFF2A489E),
-                                        fontSize: 11,
-                                        fontFamily: 'Barlow',
-                                        fontWeight: FontWeight.w400,
-                                        height: 0,
-                                        letterSpacing: 0.55,
-                                      ),
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const CrimeStatisticsScreen(),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                width: 59,
+                                height: 59,
+                                margin: const EdgeInsets.all(4),
+                                decoration: ShapeDecoration(
+                                  color: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    side: const BorderSide(width: 1, color: Color(0x802A489E)),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  shadows: const [
+                                    BoxShadow(
+                                      color: Color(0x111F3982),
+                                      blurRadius: 60,
+                                      offset: Offset(0, 8),
+                                      spreadRadius: 60,
                                     ),
                                   ],
                                 ),
+                                child: Center(
+                                  child: Icon(
+                                    Icons.bar_chart, // User Management Icon
+                                    size: 30, // Adjusted size for better visibility
+                                    color: Color(0xFF2A489E), // Matching text color
+                                  ),
+                                ),
                               ),
-                            ]),
+                            ),
+                            const Text(
+                              'Crime \n Statisrics',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Color(0xFF2A489E),
+                                fontSize: 11,
+                                fontFamily: 'Barlow',
+                                fontWeight: FontWeight.w400,
+                                letterSpacing: 0.55,
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                     const SizedBox(height: 12.0),
@@ -837,8 +838,8 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) =>
-                                      const CrimeReportScreen()),
+                                    builder: (context) =>  RedzoneScreen(),
+                                  ),
                                 );
                               },
                               child: Container(
@@ -848,42 +849,48 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                                 decoration: ShapeDecoration(
                                   color: Colors.white,
                                   shape: RoundedRectangleBorder(
-                                    side: const BorderSide(
-                                        width: 1,
-                                        color: Color(0x802A489E)),
-                                    borderRadius:
-                                    BorderRadius.circular(10),
+                                    side: const BorderSide(width: 1, color: Color(0x802A489E)),
+                                    borderRadius: BorderRadius.circular(10),
                                   ),
                                   shadows: const [
                                     BoxShadow(
                                       color: Color(0x111F3982),
-                                      blurRadius: 30,
+                                      blurRadius: 60,
                                       offset: Offset(0, 8),
-                                      spreadRadius: 10,
+                                      spreadRadius: 60,
                                     ),
                                   ],
                                 ),
                                 child: Center(
-                                  child: Image.asset(
-                                    'icons/6.png', // Example image path, replace with your actual image path
-                                    width: 30,
-                                    height: 30,
+                                  child: ShaderMask(
+                                    shaderCallback: (Rect bounds) {
+                                      return LinearGradient(
+                                        colors: [Color(0x802A489E), Color(0xFFE22128)], // Gradient colors
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ).createShader(bounds);
+                                    },
+                                    child: Icon(
+                                      Icons.shield, // User Management Icon
+                                      size: 30, // Adjusted size for better visibility
+                                      color: Colors.white, // Keep white so ShaderMask applies the gradient
+                                    ),
                                   ),
+
                                 ),
                               ),
                             ),
                             const Text(
-                              'Safety Tips',
+                              'Red Zone',
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 color: Color(0xFF2A489E),
                                 fontSize: 11,
                                 fontFamily: 'Barlow',
                                 fontWeight: FontWeight.w400,
-                                height: 0,
                                 letterSpacing: 0.55,
                               ),
-                            )
+                            ),
                           ],
                         ),
 // Box 7
@@ -945,7 +952,8 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                           ],
                         ),
 // Box 8
-                        Column(mainAxisSize: MainAxisSize.min, children: [
+                        Column(
+                            mainAxisSize: MainAxisSize.min, children: [
                           GestureDetector(
                             onTap: () {
                               Navigator.push(

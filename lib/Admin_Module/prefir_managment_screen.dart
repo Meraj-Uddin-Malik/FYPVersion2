@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fyp_v2/Citizen_Module/fir_view_screen.dart';
+import 'package:fyp_v2/Admin_Module/firdemo.dart';
+import 'package:fyp_v2/Admin_Module/prefir_details_screen.dart';
 
 class PrefirManagmentScreen extends StatefulWidget {
   const PrefirManagmentScreen({super.key});
@@ -31,7 +32,33 @@ class _PrefirManagmentScreenState extends State<PrefirManagmentScreen> {
               backgroundImage: AssetImage('images/Police.png'),
             ),
             const SizedBox(height: 10),
-            Text('Pre FIR Tracking', style: _textStyle(18.0, Colors.white)),
+            const Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
+                    text: 'PRE FIR ',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontFamily: 'Barlow',
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 3.36,
+                    ),
+                  ),
+                  TextSpan(
+                    text: 'MANAGEMENT',
+                    style: TextStyle(
+                      color: Color(0xFFE22128),
+                      fontSize: 16,
+                      fontFamily: 'Barlow',
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 3.36,
+                    ),
+                  ),
+                ],
+              ),
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(height: 20),
             Expanded(
               child: Container(
@@ -45,11 +72,12 @@ class _PrefirManagmentScreenState extends State<PrefirManagmentScreen> {
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
                   children: [
+                    /// **Search Field with the given decoration**
                     TextField(
                       controller: searchController,
-                      decoration: _inputDecoration('Search Your Pre FIR', Icons.search),
-                      style: const TextStyle(color: Color(0xFF2A489E), fontSize: 14.0),
-                      cursorColor: const Color(0xFF2A489E),
+                      decoration: _inputDecoration('Search Your Pre-FIR', Icons.search),
+                      style: TextStyle(color: Color(0xFF2A489E), fontSize: 14),
+                      cursorColor: Color(0xFF2A489E),
                       onChanged: (value) {
                         setState(() {
                           searchQuery = value.toLowerCase();
@@ -57,6 +85,8 @@ class _PrefirManagmentScreenState extends State<PrefirManagmentScreen> {
                       },
                     ),
                     const SizedBox(height: 10),
+
+                    /// **Dropdown with the same styling**
                     DropdownButtonFormField<String>(
                       value: selectedStatus,
                       decoration: _inputDecoration('Filter by Status', Icons.filter_list),
@@ -105,6 +135,8 @@ class _PrefirManagmentScreenState extends State<PrefirManagmentScreen> {
                               var data = fir.data() as Map<String, dynamic>;
 
                               return Card(
+                                color: Colors.white,
+                                elevation: 3,
                                 child: ListTile(
                                   title: Text(data['incident_subject'] ?? 'No Subject',
                                       style: _textStyle(14, Color(0xFF2A489E))),
@@ -112,32 +144,28 @@ class _PrefirManagmentScreenState extends State<PrefirManagmentScreen> {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text('Status: ${data['status'] ?? 'Unknown'}',
-                                          style: _textStyle(12, Color(0xFF2A489E).withAlpha(200))),
+                                          style: TextStyle(fontSize: 12, color: Color(0xFF2A489E))),
                                       Text('Date: ${data['incident_date'] ?? 'Unknown'}',
-                                          style: _textStyle(12, Color(0xFF2A489E).withAlpha(200))),
+                                          style: TextStyle(fontSize: 12, color: Color(0xFF2A489E).withAlpha(200))),
                                     ],
                                   ),
-                                  trailing: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      IconButton(
-                                        icon: Icon(Icons.edit, color: Colors.blue),
-                                        onPressed: () => _updateStatus(fir.id, data['status']),
-                                      ),
-                                      IconButton(
-                                        icon: Icon(Icons.delete, color: Colors.red),
-                                        onPressed: () => _deleteFIR(fir.id),
-                                      ),
-                                    ],
-                                  ),
+                                  trailing: Icon(Icons.arrow_forward_ios, color: Color(0xFF2A489E),
+                                  size: 15,), // Right Arrow
                                   onTap: () {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => PreFIRViewScreen(firData: data),
+                                        builder: (context) => Firdemo(
+                                          firId: fir.id, // Pass Firestore Document ID
+                                          firData: data,
+                                          isAdmin: true, // Set based on user role
+                                        ),
                                       ),
                                     );
                                   },
+
+
+
                                 ),
                               );
                             },
@@ -155,84 +183,37 @@ class _PrefirManagmentScreenState extends State<PrefirManagmentScreen> {
     );
   }
 
-  void _updateStatus(String firId, String currentStatus) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        String newStatus = currentStatus;
-        return AlertDialog(
-          title: Text('Update Status'),
-          content: DropdownButtonFormField<String>(
-            value: newStatus,
-            onChanged: (value) {
-              newStatus = value!;
-            },
-            items: statusOptions.map((status) {
-              return DropdownMenuItem(value: status, child: Text(status));
-            }).toList(),
-          ),
-          actions: [
-            TextButton(
-              child: Text('Cancel'),
-              onPressed: () => Navigator.pop(context),
-            ),
-            TextButton(
-              child: Text('Update'),
-              onPressed: () {
-                FirebaseFirestore.instance
-                    .collection('pre_fir')
-                    .doc(firId)
-                    .update({'status': newStatus}).then((_) {
-                  Navigator.pop(context);
-                }).catchError((error) {
-                  print("Failed to update status: $error");
-                });
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _deleteFIR(String firId) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Confirm Delete'),
-        content: Text('Are you sure you want to delete this Pre-FIR?'),
-        actions: [
-          TextButton(
-            child: Text('Cancel'),
-            onPressed: () => Navigator.pop(context),
-          ),
-          TextButton(
-            child: Text('Delete'),
-            onPressed: () {
-              FirebaseFirestore.instance
-                  .collection('pre_fir')
-                  .doc(firId)
-                  .delete()
-                  .then((_) {
-                Navigator.pop(context);
-              }).catchError((error) {
-                print("Failed to delete FIR: $error");
-              });
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
+  /// **Common Input Decoration for Search & Dropdown**
   InputDecoration _inputDecoration(String label, IconData icon) {
-    return InputDecoration(
-      labelText: label,
-      border: OutlineInputBorder(),
-      prefixIcon: Icon(icon, color: Color(0xFF2A489E)),
+    return const InputDecoration(
+      labelText: 'Search Pre FIR', // Set Dynamic Label
+      labelStyle: TextStyle(
+        fontSize: 14.0,
+        color: Color(0xFF203982), // Blue label color
+        fontWeight: FontWeight.w400,
+      ),
+      border: OutlineInputBorder(
+        borderSide: BorderSide(
+          color: Color(0xFF203982), // Blue border color
+        ),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderSide: BorderSide(
+          color: Color(0xFF203982), // Blue border when inactive
+          width: 0.5,
+        ),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderSide: BorderSide(
+          color: Color(0xFF203982), // Blue border when focused
+          width: 1.0,
+        ),
+      ),
+      contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
     );
   }
 
+  /// **Text Style Helper**
   TextStyle _textStyle(double fontSize, Color color) {
     return TextStyle(
       fontSize: fontSize,

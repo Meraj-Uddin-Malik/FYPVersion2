@@ -1,9 +1,11 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fyp_v2/Citizen_Module/profile_screen.dart';
+import 'package:fyp_v2/Citizen_Module/saftytips_screen.dart';
 import 'package:fyp_v2/Citizen_Module/services_screen.dart';
 import 'package:fyp_v2/Citizen_Module/settings_screen.dart';
 import 'package:fyp_v2/Citizen_Module/soss_screen.dart';
+import 'package:fyp_v2/Citizen_Module/stationfinder_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,7 +16,6 @@ import 'fir_tracking_screen.dart';
 import 'igpwebscreenview.dart';
 import 'jobwebcreenview.dart';
 import 'login_screen.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MainScreen extends StatefulWidget {
@@ -837,7 +838,7 @@ class _MainScreenState extends State<MainScreen> {
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                const CrimeReportScreen()),
+                                                const SaftytipsScreen()),
                                       );
                                     },
                                     child: Container(
@@ -895,7 +896,7 @@ class _MainScreenState extends State<MainScreen> {
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                const CrimeReportScreen()),
+                                                const StationfinderScreen()),
                                       );
                                     },
                                     child: Container(

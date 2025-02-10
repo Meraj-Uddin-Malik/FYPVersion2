@@ -37,99 +37,88 @@ class LoginScreenState extends State<LoginScreen> {
   signIn() async {
     if (_formKey.currentState?.validate() ?? false) {
       try {
-        // Attempt login with Firebase Authentication
+        // ✅ Use emailController instead of CNIC
         UserCredential userCredential = await FirebaseAuth.instance
             .signInWithEmailAndPassword(
-          email: cnicController.text, // Use the email entered in the form
+          email: cnicController.text, // ✅ Make sure this is correct
           password: passwordController.text,
         );
 
-        // Check if user is authenticated
         if (userCredential.user != null) {
-          // Fetch user data from Firestore
-          DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          // ✅ Fetch user from Firestore using email instead of UID
+          QuerySnapshot querySnapshot = await FirebaseFirestore.instance
               .collection('users')
-              .doc(userCredential.user?.uid)  // Using UID to get the user doc
+              .where('email', isEqualTo: userCredential.user?.email)
+              .limit(1)
               .get();
 
-          if (userDoc.exists) {
-            var userData = userDoc.data() as Map<String, dynamic>;
+          if (querySnapshot.docs.isNotEmpty) {
+            var userData = querySnapshot.docs.first.data() as Map<String, dynamic>;
+
             String role = userData['role'];
-            String badgeNo = userData['badgeno'] ?? '';  // Empty if no badge
-            // String username = userData['username'];
-            // String cnic = userData['cnic'];
-            // String email = userData['email'];
-            // String gender = userData['gender'];
+            String badgeNo = userData['badgeno'] ?? '';
+            String username = userData['username'];
+            String cnic = userData['cnic'];
+            String email = userData['email'];
+            String gender = userData['gender'];
 
-            // Print user data for debugging purposes
-            // print('User Role: $role');
-            // print('Badge No: $badgeNo');
-            // print('Username: $username');
-            // print('CNIC: $cnic');
-            // print('Email: $email');
-            // print('Gender: $gender');
+            print('User Role: $role');
+            print('Badge No: $badgeNo');
+            print('Username: $username');
+            print('CNIC: $cnic');
+            print('Email: $email');
+            print('Gender: $gender');
 
-            // Check for valid role and navigate accordingly
+            // ✅ Check role and navigate
             if (role == null || role.isEmpty) {
               showErrorAlert('Role not found for the user.');
-            } else {
-              // Check if role and badgeNo are valid for admin or police
-              if (role.toLowerCase() == 'admin' || role.toLowerCase() == 'police') {
-                if (badgeNo.isEmpty) {
-                  showErrorAlert('Badge number is required for $role.');
-                } else {
-                  switch (role.toLowerCase()) {
-                    case 'admin':
-                      navigateToAdminScreen();
-                      break;
-                    case 'police':
-                      navigateToPoliceScreen(badgeNo);  // Only for police, badge is checked
-                      break;
-                    default:
-                      showErrorAlert('Invalid Role: $role');
-                      break;
-                  }
-                }
-              }
-              // For Citizen: No badge check, just role-based navigation
-              else if (role.toLowerCase() == 'citizen') {
-                navigateToCitizenScreen();
+            } else if (role.toLowerCase() == 'admin') {
+              navigateToAdminScreen();
+            } else if (role.toLowerCase() == 'police') {
+              if (badgeNo.isEmpty) {
+                showErrorAlert('Badge number is required for Police.');
               } else {
-                showErrorAlert('Invalid Role: $role');
+                navigateToPoliceScreen(badgeNo);
               }
+            } else if (role.toLowerCase() == 'citizen') {
+              navigateToCitizenScreen();
+            } else {
+              showErrorAlert('Invalid Role: $role');
             }
           } else {
-            showErrorAlert('User data not found');
+            showErrorAlert('User data not found in Firestore.');
           }
         } else {
           showErrorAlert('Authentication Failed');
         }
       } catch (e) {
-        // Handle any errors (e.g., invalid credentials)
-        ArtSweetAlert.show(
-          context: context,
-          artDialogArgs: ArtDialogArgs(
-            type: ArtSweetAlertType.danger,
-            title: "Login Failed",
-            text: "Incorrect credentials. Please try again.",
-          ),
-        );
+        print("Firebase Login Error: $e"); // ✅ Debugging
+
+        if (e is FirebaseAuthException) {
+          switch (e.code) {
+            case 'user-not-found':
+              showErrorAlert("No account found with this email.");
+              break;
+            case 'wrong-password':
+              showErrorAlert("Incorrect password. Try again.");
+              break;
+            case 'network-request-failed':
+              showErrorAlert("No internet connection.");
+              break;
+            default:
+              showErrorAlert("Login failed: ${e.message}");
+          }
+        } else {
+          showErrorAlert("An unexpected error occurred.");
+        }
       }
     } else {
-      // Show validation error if form is not valid
-      ArtSweetAlert.show(
-        context: context,
-        artDialogArgs: ArtDialogArgs(
-          type: ArtSweetAlertType.warning,
-          title: "Validation Error",
-          text: "Please fill in all fields correctly.",
-        ),
-      );
+      showErrorAlert("Please fill in all fields correctly.");
     }
   }
 
-  navigateToAdminScreen() {
 
+  navigateToAdminScreen() {
     ArtSweetAlert.show(
       context: context,
       artDialogArgs: ArtDialogArgs(
@@ -139,7 +128,7 @@ class LoginScreenState extends State<LoginScreen> {
       ),
     );
     Timer(const Duration(seconds: 2), () {
-      Navigator.pushReplacementNamed(context, '/main_screen');
+      Navigator.of(context).pushReplacementNamed('/admin_main_screen');
     });
   }
 
