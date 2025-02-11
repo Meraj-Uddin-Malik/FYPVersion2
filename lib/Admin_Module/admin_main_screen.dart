@@ -2,6 +2,7 @@ import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fyp_v2/Admin_Module/crimestatistics.dart';
 import 'package:fyp_v2/Admin_Module/missingfoundproperty_screen.dart';
+import 'package:fyp_v2/Admin_Module/policecomplaints_management_screen.dart';
 import 'package:fyp_v2/Admin_Module/prefir_managment_screen.dart';
 import 'package:fyp_v2/Admin_Module/redzone_screen.dart';
 import 'package:fyp_v2/Admin_Module/staff_managment_screen.dart';
@@ -17,7 +18,6 @@ import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../Citizen_Module/crime_report_screen.dart';
 import '../Citizen_Module/fir_tracking_screen.dart';
-import '../Citizen_Module/jobwebcreenview.dart';
 import '../Citizen_Module/login_screen.dart';
 
 class AdminMainScreen extends StatefulWidget {
@@ -49,6 +49,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
   ];
   String? userName;
   String? userCnic;
+  String? userBadge;
 
   @override
   void initState() {
@@ -56,21 +57,49 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
     _getUserInfo();
     _fetchTotalPreFIRs();
   }
-  Future<void> _getUserInfo() async {
-    User? user = FirebaseAuth.instance.currentUser; // Get logged-in user
 
-    if (user != null) {
+  Future<void> _getUserInfo() async {
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+
+      if (user == null) {
+        debugPrint("No user is logged in.");
+        return;
+      }
+
+      debugPrint("Fetching data for user: ${user.uid}");
+
       DocumentSnapshot userData = await FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid)
           .get();
 
+      debugPrint("Raw Firestore Data: ${userData.data()}"); // 🔍 Debug: Print raw Firestore data
+
+      if (!userData.exists) {
+        debugPrint("Document does not exist for user: ${user.uid}");
+        return;
+      }
+
+      Map<String, dynamic>? userDataMap = userData.data() as Map<String, dynamic>?;
+
+      if (userDataMap == null) {
+        debugPrint("User data is null.");
+        return;
+      }
+
       setState(() {
-        userName = userData['username'];
-        userCnic = userData['cnic'];
+        userName = userDataMap['username'] ?? 'N/A';
+        userCnic = userDataMap['cnic'] ?? 'N/A';
+        userBadge = userDataMap['badgeno'] ?? 'N/A';
       });
+
+      debugPrint("Fetched Data -> Name: $userName, CNIC: $userCnic, Badge: $userBadge");
+    } catch (e) {
+      debugPrint("Error fetching user data: $e");
     }
   }
+
 
   final items = <Widget>[
     Icon(Icons.home, size: 30),
@@ -128,7 +157,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
     }
 
     return Scaffold(
-      extendBody: true,
+      // extendBody: true,
       bottomNavigationBar: Theme(
         data: Theme.of(context).copyWith(
           iconTheme: IconThemeData(color: Colors.white),
@@ -151,7 +180,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
         child: Center(
           child: Column(
             children: [
-// Header Container
+              // Header Container
               Container(
                 width: 390,
                 height: 500,
@@ -314,6 +343,19 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                                 const SizedBox(height: 2),
                                 Text(
                                   userCnic ?? 'Loading...',
+                                  textAlign: TextAlign.left,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontFamily: 'Barlow',
+                                    fontWeight: FontWeight.w700,
+                                    height: 1.2,
+                                    letterSpacing: 0.50,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  userBadge ?? 'Loading...',
                                   textAlign: TextAlign.left,
                                   style: const TextStyle(
                                     color: Colors.white,
@@ -989,7 +1031,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) =>
-                                    const JobWebScreen()),
+                                    const PolicecomplaintsManagementScreen()),
                               );
                             },
                             child: Column(
@@ -1018,15 +1060,24 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                                     ],
                                   ),
                                   child: Center(
-                                    child: Image.asset(
-                                      'icons/8.png',
-                                      width: 28,
-                                      height: 28,
+                                    child: ShaderMask(
+                                      shaderCallback: (Rect bounds) {
+                                        return LinearGradient(
+                                          colors: [Color(0x802A489E), Color(0xFFE22128)], // Gradient colors
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        ).createShader(bounds);
+                                      },
+                                      child: Icon(
+                                        Icons.gavel, // User Management Icon
+                                        size: 30, // Adjusted size for better visibility
+                                        color: Colors.white, // Keep white so ShaderMask applies the gradient
+                                      ),
                                     ),
                                   ),
                                 ),
                                 const Text(
-                                  'Job Portal',
+                                  'Police Compliant',
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     color: Color(0xFF2A489E),
@@ -1098,8 +1149,10 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
           : screens[index],
       floatingActionButton: FloatingActionButton(
         onPressed: () => signOut(context),
-        child: const Icon(Icons.login_rounded),
+        mini: true, // Makes the button smaller
+        child: const Icon(Icons.login_rounded, size: 20),
       ),
+
     );
   }
 

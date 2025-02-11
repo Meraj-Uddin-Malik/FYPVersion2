@@ -1,5 +1,6 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fyp_v2/Citizen_Module/missingfoundreport_screen.dart';
 import 'package:fyp_v2/Citizen_Module/profile_screen.dart';
 import 'package:fyp_v2/Citizen_Module/saftytips_screen.dart';
 import 'package:fyp_v2/Citizen_Module/services_screen.dart';
@@ -108,7 +109,7 @@ class _MainScreenState extends State<MainScreen> {
     }
 
     return Scaffold(
-      extendBody: true,
+      // extendBody: true,
       bottomNavigationBar: Theme(
         data: Theme.of(context).copyWith(
           iconTheme: IconThemeData(color: Colors.white),
@@ -404,13 +405,13 @@ class _MainScreenState extends State<MainScreen> {
                                       MainAxisAlignment.spaceBetween,
                                   children: [
                                     _buildFIRDetail(
-                                        "Total FIRs", 0.8, "111 FIRs"),
+                                        "Total FIRs", 0.8, "1 FIRs"),
                                     _buildFIRDetail(
-                                        "Pending FIRs", 0.5, "11 FIRs"),
+                                        "Pending FIRs", 0.5, "0 FIRs"),
                                     _buildFIRDetail(
-                                        "Resolved FIRs", 0.3, "90 FIRs"),
+                                        "Resolved FIRs", 0.3, "0 FIRs"),
                                     _buildFIRDetail(
-                                        "Rejected FIRs", 0.4, " 10FIRs"),
+                                        "Rejected FIRs", 0.4, " 0 FIRs"),
                                   ],
                                 ),
                               ),
@@ -780,7 +781,7 @@ class _MainScreenState extends State<MainScreen> {
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                const CrimeReportScreen()),
+                                                const MissingfoundreportScreen()),
                                       );
                                     },
                                     child: Container(

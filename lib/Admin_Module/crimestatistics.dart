@@ -34,9 +34,13 @@ class _CrimeStatisticsScreenState extends State<CrimeStatisticsScreen> {
   }
 
   Future<void> fetchCrimeData() async {
-    QuerySnapshot snapshot =
-    await FirebaseFirestore.instance.collection('pre_fir').get();
+    Query query = FirebaseFirestore.instance.collection('pre_fir');
 
+    if (selectedCrimeType != "All") {
+      query = query.where('incident_type', isEqualTo: selectedCrimeType);
+    }
+
+    QuerySnapshot snapshot = await query.get();
     List<DocumentSnapshot> docs = snapshot.docs;
 
     int open = 0, resolved = 0, pending = 0, closed = 0, total = docs.length;
@@ -45,10 +49,20 @@ class _CrimeStatisticsScreenState extends State<CrimeStatisticsScreen> {
       var data = doc.data() as Map<String, dynamic>;
       String status = data['status'] ?? 'Unknown';
 
-      if (status == "New") open++;
-      if (status == "Resolved") resolved++;
-      if (status == "Pending") pending++;
-      if (status == "Rejected") closed++;
+      switch (status) {
+        case "New":
+          open++;
+          break;
+        case "Resolved":
+          resolved++;
+          break;
+        case "Pending":
+          pending++;
+          break;
+        case "Rejected":
+          closed++;
+          break;
+      }
     }
 
     setState(() {
@@ -59,6 +73,7 @@ class _CrimeStatisticsScreenState extends State<CrimeStatisticsScreen> {
       closedCases = closed;
     });
   }
+
 
   @override
   Widget build(BuildContext context) {

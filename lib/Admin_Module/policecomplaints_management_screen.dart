@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fyp_v2/Admin_Module/prefir_details_screen.dart';
 
-class PrefirManagmentScreen extends StatefulWidget {
-  const PrefirManagmentScreen({super.key});
+class PolicecomplaintsManagementScreen extends StatefulWidget {
+  const PolicecomplaintsManagementScreen({super.key});
 
   @override
-  State<PrefirManagmentScreen> createState() => _PrefirManagmentScreenState();
+  State<PolicecomplaintsManagementScreen> createState() => _PolicecomplaintsManagementScreenState();
 }
 
-class _PrefirManagmentScreenState extends State<PrefirManagmentScreen> {
+class _PolicecomplaintsManagementScreenState extends State<PolicecomplaintsManagementScreen> {
   String searchQuery = '';
   String selectedStatus = 'All';
   TextEditingController searchController = TextEditingController();
@@ -31,32 +31,24 @@ class _PrefirManagmentScreenState extends State<PrefirManagmentScreen> {
               backgroundImage: AssetImage('images/Police.png'),
             ),
             const SizedBox(height: 10),
-            const Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(
-                    text: 'PRE FIR ',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontFamily: 'Barlow',
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 3.36,
-                    ),
-                  ),
-                  TextSpan(
-                    text: 'MANAGEMENT',
-                    style: TextStyle(
-                      color: Color(0xFFE22128),
-                      fontSize: 16,
-                      fontFamily: 'Barlow',
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 3.36,
-                    ),
-                  ),
-                ],
+            const
+            Text('AGAINST POLICE ',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontFamily: 'Barlow',
+                fontWeight: FontWeight.w700,
+                letterSpacing: 3.36,
               ),
-              textAlign: TextAlign.center,
+            ),
+            Text( 'COMPLAINTS MANAGEMENT',
+              style: TextStyle(
+                color: Color(0xFFE22128),
+                fontSize: 16,
+                fontFamily: 'Barlow',
+                fontWeight: FontWeight.w700,
+                letterSpacing: 3.36,
+              ),
             ),
             const SizedBox(height: 20),
             Expanded(
@@ -64,8 +56,8 @@ class _PrefirManagmentScreenState extends State<PrefirManagmentScreen> {
                 decoration: const BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    topRight: Radius.circular(30),
+                    topLeft: Radius.circular(50),
+                    topRight: Radius.circular(50),
                   ),
                 ),
                 padding: const EdgeInsets.all(20.0),
@@ -74,7 +66,7 @@ class _PrefirManagmentScreenState extends State<PrefirManagmentScreen> {
                     /// **Search Field with the given decoration**
                     TextField(
                       controller: searchController,
-                      decoration: _inputDecoration('Search Your Pre-FIR', Icons.search),
+                      decoration: _inputDecoration('Search Your Complaints', Icons.search),
                       style: TextStyle(color: Color(0xFF2A489E), fontSize: 14),
                       cursorColor: Color(0xFF2A489E),
                       onChanged: (value) {
@@ -104,7 +96,7 @@ class _PrefirManagmentScreenState extends State<PrefirManagmentScreen> {
                     Expanded(
                       child: StreamBuilder<QuerySnapshot>(
                         stream: FirebaseFirestore.instance
-                            .collection('pre_fir')
+                            .collection('complaints_against_police')
                             .orderBy('timestamp', descending: true)
                             .snapshots(),
                         builder: (context, snapshot) {
@@ -149,7 +141,7 @@ class _PrefirManagmentScreenState extends State<PrefirManagmentScreen> {
                                     ],
                                   ),
                                   trailing: Icon(Icons.arrow_forward_ios, color: Color(0xFF2A489E),
-                                  size: 15,), // Right Arrow
+                                    size: 15,), // Right Arrow
                                   onTap: () {
                                     Navigator.push(
                                       context,
@@ -185,7 +177,7 @@ class _PrefirManagmentScreenState extends State<PrefirManagmentScreen> {
   /// **Common Input Decoration for Search & Dropdown**
   InputDecoration _inputDecoration(String label, IconData icon) {
     return const InputDecoration(
-      labelText: 'Search Pre FIR', // Set Dynamic Label
+      labelText: 'Search Your Compliant', // Set Dynamic Label
       labelStyle: TextStyle(
         fontSize: 14.0,
         color: Color(0xFF203982), // Blue label color
